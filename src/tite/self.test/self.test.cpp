@@ -25,15 +25,13 @@ TEST_CASE("self",
   }
 
   SECTION("test extract_self") {
-    self s1;
-    CHECK( std::is_same<decltype(tite::extract_self(5.0, s1, 1)), self&>::value );
+    CHECK( tite::extract_self<self>{}('c') == 'c' );
 
-    self const s2;
-    CHECK( std::is_same<decltype(tite::extract_self(5.0, 1, s2)), self const&>::value );
+    CHECK( tite::extract_self<double, self>{}(5.0, 'c') == 'c' );
+    CHECK( tite::extract_self<self, char>{}(5.0, 'c') == 5.0 );
 
-    self const&& s3 = std::move(s1);
-    CHECK( std::is_same<decltype(tite::extract_self(std::move(s3) ,5.0, 1)), self const&&>::value );
-
-    CHECK( std::is_same<decltype(tite::extract_self(self{},5.0, 1)), self&&>::value );
+    CHECK( tite::extract_self<double, int, self>{}(5.0, 1, 'c') == 'c' );
+    CHECK( tite::extract_self<double, self, char>{}(5.0, 1, 'c') == 1 );
+    CHECK( tite::extract_self<self, int, char>{}(5.0, 1, 'c') == 5.0 );
   }
 }

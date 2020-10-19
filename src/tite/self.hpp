@@ -97,49 +97,50 @@ struct replace_self<self const&&> {
 template<typename ArgT, typename T>
 using replace_self_t = typename replace_self<ArgT>::template type<ArgT,T>;
 
-template<typename ArgT, typename T>
+template<typename ArgT>
 using replace_self_with_void_ptr_t =
   std::conditional_t<
     std::is_same<std::remove_cv_t<std::remove_reference_t<ArgT>>, self>::value,
     void*,
     ArgT>;
 
-struct extract_self_fn {
-private:
-  struct impl {
-    template<typename FirstT,
-             typename... RestT,
-             TITE_REQUIRES( std::is_same<std::remove_cv_t<std::remove_reference_t<FirstT>>, self>::value )>
-    constexpr auto operator()(FirstT&& f, RestT&&... r) const
-    noexcept
-    -> decltype( f )
-    {
-      return f;
-    }
-
-    template<typename FirstT,
-             typename... RestT,
-             TITE_REQUIRES( not std::is_same<std::remove_cv_t<std::remove_reference_t<FirstT>>, self>::value ),
-             TITE_REQUIRES( (sizeof...(RestT) > 0) )>
-    constexpr auto operator()(FirstT&& f, RestT&&... r) const
-    noexcept
-    -> decltype( std::declval<impl const&>()( std::forward<RestT>(r)... ) )
-    {
-      return (*this)(std::forward<RestT>(r)...);
-    }
-  };
-
-public:
-  template<typename... ArgsT>
-  constexpr auto operator()(ArgsT&&... args) const
+template<typename FirstT, typename... RestT>
+struct extract_self {
+  template<typename FirstT_,
+           typename... RestT_,
+           typename MaybeSelf = FirstT,
+           TITE_REQUIRES(std::is_same<std::remove_cv_t<std::remove_reference_t<MaybeSelf>>, self>::value)>
+  constexpr auto operator()(FirstT_&& f, RestT_&&... rest) const
   noexcept
-  -> decltype( impl{}(std::forward<ArgsT>(args)...) )
+  -> decltype( std::forward<FirstT_>(f) )
   {
-    return impl{}(std::forward<ArgsT>(args)...);
+    return std::forward<FirstT_>(f);
+  }
+
+  template<typename FirstT_,
+           typename... RestT_,
+           typename MaybeSelf = FirstT,
+           TITE_REQUIRES(not std::is_same<std::remove_cv_t<std::remove_reference_t<MaybeSelf>>, self>::value)>
+  constexpr auto operator()(FirstT_&& f, RestT_&&... rest) const
+  noexcept
+  -> decltype( extract_self<RestT...>{}(std::forward<RestT_>(rest)...) )
+  {
+    return extract_self<RestT...>{}(std::forward<RestT_>(rest)...);
   }
 };
 
-TITE_INLINEVAR(extract_self_fn const, extract_self)
+template<typename OnlyT>
+struct extract_self<OnlyT> {
+  template<typename OnlyT_,
+           typename MaybeSelf = OnlyT,
+           TITE_REQUIRES(std::is_same<std::remove_cv_t<std::remove_reference_t<MaybeSelf>>, self>::value)>
+  constexpr auto operator()(OnlyT_&& f) const
+  noexcept
+  -> decltype( std::forward<OnlyT_>(f) )
+  {
+    return std::forward<OnlyT_>(f);
+  }
+};
 
 } // namespace tite
 

@@ -13,4 +13,5 @@ target_sources(tite INTERFACE
 
 if( TITE_TESTING )
   add_subdirectory(tite/self.test)
+  add_subdirectory(tite/vtable.test)
 endif()

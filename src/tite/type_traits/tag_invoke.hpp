@@ -4,6 +4,7 @@
 #include "tite/type_traits/void_t.hpp"
 
 #include <type_traits>
+#include <utility>
 
 namespace tite {
 
