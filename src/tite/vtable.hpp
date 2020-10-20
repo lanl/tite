@@ -38,14 +38,35 @@ private:
     return std::move(cpo)(replace_self<ArgsT>::get((ArgsT &&) args, obj)...);
   }
 
+  template<typename T>
+  struct obtainer {
+    constexpr function_t* operator()() const
+    noexcept
+    {
+      return invoke<T>;
+    }
+  };
+
+  struct default_obtain {
+    template<typename FunctionT, typename ObtainerFn>
+    constexpr void operator()(FunctionT*& ptr, ObtainerFn&& obtainer) const
+    noexcept( noexcept( ptr = std::forward<ObtainerFn>(obtainer)() ) )
+    {
+      ptr = std::forward<ObtainerFn>(obtainer)();
+    }
+  };
+
 public:
   constexpr function_t* fn() const noexcept {
     return fn_;
   }
 
-  template<typename T>
-  static constexpr vtable_entry construct() noexcept {
-    return vtable_entry{ invoke<T> };
+  template<typename T,
+           typename ObtainFn=default_obtain>
+  static constexpr vtable_entry construct(ObtainFn obtain={}) noexcept {
+    function_t* ptr = nullptr;
+    obtain(ptr, obtainer<T>{});
+    return vtable_entry{ ptr };
   }
 };
 
