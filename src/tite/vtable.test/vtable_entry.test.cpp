@@ -33,5 +33,5 @@ TEST_CASE("vtable_entry",
 
   int i = 5;
   void* vptr = &i;
-  CHECK( vte.fn()(times_two, vptr) == 10 );
+  CHECK( vte.fn()(times_two_cpo{}, vptr) == 10 );
 }

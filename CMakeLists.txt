@@ -7,7 +7,7 @@ endif()
 
 project(tite
   VERSION 1.0.0
-  LANGUAGES CXX)
+  LANGUAGES CXX) # CUDA)
 
 include(CTest)
 

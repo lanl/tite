@@ -5,6 +5,7 @@
 #include "tite/type_traits/inline_var.hpp"
 
 #include <type_traits>
+#include <utility>
 
 namespace tite {
 
