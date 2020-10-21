@@ -10,15 +10,22 @@ project(tite
   LANGUAGES CXX) # CUDA)
 
 include(CTest)
-
 include(CMakeDependentOption)
+
+option(TITE_ENABLE_CUDA OFF "enable CUDA components")
 
 CMAKE_DEPENDENT_OPTION(TITE_TESTING
   "Build tite tests" ${tite_testing_default}
   "BUILD_TESTING" OFF)
 
+if( TITE_ENABLE_CUDA )
+  enable_language(CUDA)
+endif()
+
 add_library(tite INTERFACE)
 add_library(tite::tite ALIAS tite)
+target_compile_definitions(tite INTERFACE
+  $<$<BOOL:${TITE_ENABLE_CUDA}>:TITE_ENABLE_CUDA> )
 
 target_compile_features(tite INTERFACE cxx_std_14)
 
@@ -43,6 +50,7 @@ if( TITE_TESTING )
     $<$<NOT:$<BOOL:${WIN32}>>:$<$<CXX_COMPILER_ID:Clang>:-Wall;-Werror>>
     $<$<BOOL:${WIN32}>:$<$<CXX_COMPILER_ID:Clang>:-Wall;-Wno-c++98-compat;-Wno-c++98-compat-pedantic>>
     $<$<CXX_COMPILER_ID:AppleClang>:-Wall;-Werror >
+    $<$<CUDA_COMPILER_ID:NVIDIA>:-expt-enhanced-constexpr>
    )
 
   add_executable(tite_test_main

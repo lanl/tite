@@ -1,37 +1,27 @@
 #include "tite.hpp"
+#include "times_two.hpp"
 
 #include "catch2/catch.hpp"
 
-struct times_two_cpo {
-private:
-  template<typename ArgT>
-  friend constexpr auto tag_invoke(times_two_cpo, ArgT&& arg)
-  noexcept
-  -> decltype( 2*std::forward<ArgT>(arg) )
-  {
-    return 2 * std::forward<ArgT>(arg);
-  }
-
-public:
-  template<typename ArgT>
-  constexpr auto operator()(ArgT&& arg) const
-  noexcept( noexcept( tite::tag_invoke{}(std::declval<times_two_cpo const&>(), std::forward<ArgT>(arg)) ) )
-  -> decltype( tite::tag_invoke{}(std::declval<times_two_cpo const&>(), std::forward<ArgT>(arg)) )
-  {
-    return tite::tag_invoke{}(*this, std::forward<ArgT>(arg));
-  }
-};
-
-static constexpr times_two_cpo times_two{};
+#ifdef TITE_ENABLE_CUDA
+int run_vtable_entry_cuda_test();
+#endif
 
 TEST_CASE("vtable_entry",
           "[vtable_entry]") {
 
   using tite::detail::vtable_entry;
+  using tite::overload;
 
-  auto vte = vtable_entry<times_two_cpo, int(tite::self)>::construct<int>();
+  using times_two_ovld = overload<times_two, int(tite::self)>;
+
+  auto vte = vtable_entry<times_two_ovld>::construct<int>();
 
   int i = 5;
   void* vptr = &i;
-  CHECK( vte.fn()(times_two_cpo{}, vptr) == 10 );
+  CHECK( vte.fn()(times_two{}, vptr) == 10 );
+
+# ifdef TITE_ENABLE_CUDA
+  CHECK( run_vtable_entry_cuda_test() == 10 );
+# endif
 }

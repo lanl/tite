@@ -1,9 +1,20 @@
-add_library(vtable.test OBJECT
+add_library(vtable.test.CXX OBJECT
   vtable_entry.test.cpp
   vtable.test.cpp)
 
-target_link_libraries(vtable.test PRIVATE
+target_link_libraries(vtable.test.CXX PRIVATE
   tite::tite_testing)
 
+if( TITE_ENABLE_CUDA )
+  add_library(vtable.test.CUDA OBJECT
+    vtable_entry.test.cu )
+endif()
+
+target_link_libraries(vtable.test.CUDA PRIVATE
+  tite::tite)
+target_compile_options(vtable.test.CUDA PRIVATE
+  -expt-relaxed-constexpr)
+
 target_sources(tite_test_main PRIVATE
-  $<TARGET_OBJECTS:vtable.test> )
+  $<TARGET_OBJECTS:vtable.test.CXX>
+  $<$<BOOL:${TITE_ENABLE_CUDA}>:$<TARGET_OBJECTS:vtable.test.CUDA>>)
