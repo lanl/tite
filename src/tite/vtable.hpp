@@ -2,6 +2,7 @@
 #define TITE_VTABLE_HPP
 
 #include "tite/self.hpp"
+#include "tite/vtable/default_invoke_pointer_policy.hpp"
 
 #include <type_traits>
 #include <utility>
@@ -9,33 +10,6 @@
 namespace tite {
 
 namespace detail {
-
-template<typename T,
-         typename CPOT,
-         typename ReturnT,
-         typename... ArgsT>
-constexpr auto invoke(CPOT cpo,
-                      replace_self_with_void_ptr_t<ArgsT>... args)
-noexcept( noexcept( std::move(cpo)(replace_self<ArgsT>::get((ArgsT &&) args, std::declval<T&>())...) ) )
--> ReturnT
-{
-  void* self_ptr = extract_self<ArgsT...>{}(args...);
-  T& obj = *static_cast<T*>(self_ptr);
-  return std::move(cpo)(replace_self<ArgsT>::get((ArgsT &&) args, obj)...);
-}
-
-template<typename T,
-         typename CPOT,
-         typename ReturnT,
-         typename... ArgsT>
-struct default_policy {
-  template<typename FunctionT>
-  constexpr void operator()(FunctionT*& ptr) const
-  noexcept
-  {
-    ptr = invoke<T,CPOT,ReturnT,ArgsT...>;
-  }
-};
 
 template<typename CPOT,
          typename Sig> // = typename CPOT::erased_signature_t>
@@ -71,10 +45,10 @@ public:
   };
 
   template<typename T,
-           template<typename...> class PointerPolicy=default_policy>
+           template<typename...> class InvokePointerPolicy=default_invoke_pointer_policy>
   static constexpr vtable_entry construct() noexcept {
     function_t* ptr = nullptr;
-    PointerPolicy<T,CPOT,ReturnT,ArgsT...>{}(ptr);
+    InvokePointerPolicy<T,CPOT,ReturnT,ArgsT...>{}(ptr);
     return vtable_entry{ ptr };
   }
 };

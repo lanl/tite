@@ -7,4 +7,6 @@
 
 #include "tite/vtable.hpp"
 
+#include "tite/overload.hpp"
+
 #endif

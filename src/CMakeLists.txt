@@ -4,6 +4,13 @@ target_sources(tite INTERFACE
 
   ${prefix}/tite/self.hpp
 
+  ${prefix}/tite/vtable.hpp
+  ${prefix}/tite/vtable/invoke.hpp
+  ${prefix}/tite/vtable/default_invoke_pointer_policy.hpp
+  ${prefix}/tite/vtable/cuda_invoke_pointer_policy.hpp
+
+  ${prefix}/tite/overload.hpp
+
   # type_traits
   ${prefix}/tite/type_traits.hpp
 
@@ -14,4 +21,5 @@ target_sources(tite INTERFACE
 if( TITE_TESTING )
   add_subdirectory(tite/self.test)
   add_subdirectory(tite/vtable.test)
+  add_subdirectory(tite/overload.test)
 endif()
