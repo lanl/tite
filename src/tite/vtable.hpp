@@ -87,12 +87,14 @@ public:
            TITE_REQUIRES(std::is_constructible<ReboundAllocatorT, AllocatorT_&&>::value),
            TITE_REQUIRES(std::is_constructible<AllocatorT, ReboundAllocatorT&&>::value)>
   static indirect_vtable_holder construct(AllocatorT_&& allocator)
-  noexcept( noexcept( std::declval<ReboundAllocatorT&>().allocate(1) )
+  noexcept( noexcept( std::allocator_traits<ReboundAllocatorT>::allocate(std::declval<ReboundAllocatorT&>(), 1) )
         and noexcept( indirect_vtable_holder{std::declval<vtable<OverloadsT...>*>(), std::declval<ReboundAllocatorT&&>()} ) )
   {
     ReboundAllocatorT vtable_allocator{std::forward<AllocatorT_>(allocator)};
-    auto* vtable_ptr = vtable_allocator.allocate(1);
-    new (vtable_ptr) vtable<OverloadsT...>{vtable<OverloadsT...>::template construct<T,InvokePointerPolicy>()};
+    auto* vtable_ptr = std::allocator_traits<ReboundAllocatorT>::allocate(vtable_allocator, 1);
+    std::allocator_traits<ReboundAllocatorT>::construct(vtable_allocator,
+                                                        vtable_ptr,
+                                                        vtable<OverloadsT...>::template construct<T,InvokePointerPolicy>());
     return indirect_vtable_holder{vtable_ptr, std::move(vtable_allocator)};
   }
 
@@ -113,8 +115,10 @@ public:
   noexcept( std::is_nothrow_copy_constructible<AllocatorT>::value )
   : allocator_{ other.allocator_ }
   {
-    vtable_ = allocator_.allocate(1);
-    new (vtable_) vtable<OverloadsT...>{*other.vtable_};
+    vtable_ = std::allocator_traits<AllocatorT>::allocate(allocator_, 1);
+    std::allocator_traits<AllocatorT>::construct(allocator_,
+                                                 vtable_,
+                                                 *other.vtable_);
   }
 
   constexpr
@@ -141,7 +145,7 @@ public:
   noexcept( std::is_nothrow_move_assignable<AllocatorT>::value )
   {
     if( this == &other) return *this;
-    allocator_.deallocate(vtable_, 1);
+    std::allocator_traits<AllocatorT>::deallocate(allocator_, vtable_, 1);
     vtable_ = std::move(other.vtable_);
     other.vtable_ = nullptr;
     allocator_ = std::move(other.allocator_);
@@ -151,9 +155,10 @@ public:
   ~indirect_vtable_holder()
   noexcept
   {
-    // a vtable is trivial (only holds pointers) so we don't need to destruct it...I think?!?!
+    // a vtable is trivial (only holds pointers) so we don't need to destruct it?!?!
+    // valgrind agrees...so far
     if( vtable_ != nullptr ) {
-      allocator_.deallocate(vtable_, 1);
+      std::allocator_traits<AllocatorT>::deallocate(allocator_, vtable_, 1);
     }
   }
 
