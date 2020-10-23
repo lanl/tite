@@ -7,6 +7,10 @@
 
 #include "tite/type_traits/requires.hpp"
 
-#include "tite/type_traits/inline_var.hpp"
+#include "tite/type_traits/is_specialization_of.hpp"
+
+#include "tite/type_traits/invocable.hpp"
+
+#include "tite/type_traits/is_cpo_invocable.hpp"
 
 #endif

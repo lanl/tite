@@ -5,12 +5,8 @@
 
 namespace tite {
 
-inline namespace type_traits {
-
 template <typename...>
 using void_t = void;
-
-} // inline namespace type_traits
 
 } // namespace tite
 

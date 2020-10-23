@@ -11,6 +11,8 @@ namespace tite {
 
 struct self {};
 
+namespace detail {
+
 template<typename NotSelfT>
 struct replace_self {
   template<typename ArgT, typename T>
@@ -142,6 +144,8 @@ struct extract_self<OnlyT> {
     return std::forward<OnlyT_>(f);
   }
 };
+
+} // namespace detail
 
 } // namespace tite
 

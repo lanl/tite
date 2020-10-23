@@ -8,8 +8,6 @@
 
 namespace tite {
 
-inline namespace type_traits {
-
 namespace tag_invoke_detail {
     void tag_invoke();
 
@@ -50,14 +48,14 @@ template<typename CPO, typename, typename... Args>
 struct is_tag_invocable : std::false_type {};
 
 template<typename CPO, typename... Args>
-struct is_tag_invocable<CPO, type_traits::void_t<tag_invoke_result_t<CPO,Args...>>, Args...>
+struct is_tag_invocable<CPO, void_t<tag_invoke_result_t<CPO,Args...>>, Args...>
     : std::true_type {};
 
 template<typename CPO, typename, typename... Args>
 struct is_nothrow_tag_invocable : std::false_type {};
 
 template<typename CPO, typename... Args>
-struct is_nothrow_tag_invocable<CPO, type_traits::void_t<tag_invoke_result_t<CPO,Args...>>, Args...> {
+struct is_nothrow_tag_invocable<CPO, void_t<tag_invoke_result_t<CPO,Args...>>, Args...> {
     static constexpr bool value =
         noexcept(tag_invoke{}(std::declval<CPO &&>(),
                               std::declval<Args &&>()...));
@@ -68,8 +66,6 @@ constexpr static bool is_tag_invocable_v = is_tag_invocable<CPO, void, Args...>:
 
 template<typename CPO, typename... Args>
 constexpr static bool is_nothrow_tag_invocable_v = is_nothrow_tag_invocable<CPO, void, Args...>::value;
-
-} // inline namespace type_traits
 
 } // namespace tite
 
