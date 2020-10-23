@@ -13,4 +13,8 @@
 
 #include "tite/type_traits/is_cpo_invocable.hpp"
 
+#include "tite/type_traits/all_of.hpp"
+
+#include "tite/type_traits/is_type_erasable.hpp"
+
 #endif
