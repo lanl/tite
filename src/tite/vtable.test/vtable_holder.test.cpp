@@ -19,6 +19,7 @@ TEST_CASE("vtable_holder",
 
     int i = 5;
     void* vptr = &i;
+    CHECK( (*vth).fn<times_two_ovld>()(times_two_ovld{}, vptr) == 10 );
     CHECK( vth->fn<times_two_ovld>()(times_two_ovld{}, vptr) == 10 );
 
     SECTION("test copy ctor") {
@@ -28,6 +29,7 @@ TEST_CASE("vtable_holder",
 
       int i = 5;
       void* vptr = &i;
+      CHECK( (*other_vth).fn<times_two_ovld>()(times_two_ovld{}, vptr) == 10 );
       CHECK( other_vth->fn<times_two_ovld>()(times_two_ovld{}, vptr) == 10 );
     }
 
@@ -38,6 +40,7 @@ TEST_CASE("vtable_holder",
 
       int i = 5;
       void* vptr = &i;
+      CHECK( (*other_vth).fn<times_two_ovld>()(times_two_ovld{}, vptr) == 10 );
       CHECK( other_vth->fn<times_two_ovld>()(times_two_ovld{}, vptr) == 10 );
     }
 
@@ -50,6 +53,7 @@ TEST_CASE("vtable_holder",
 
       int i = 5;
       void* vptr = &i;
+      CHECK( (*other_vth).fn<times_two_ovld>()(times_two_ovld{}, vptr) == 10 );
       CHECK( other_vth->fn<times_two_ovld>()(times_two_ovld{}, vptr) == 10 );
     }
 
@@ -62,7 +66,23 @@ TEST_CASE("vtable_holder",
 
       int i = 5;
       void* vptr = &i;
+      CHECK( (*other_vth).fn<times_two_ovld>()(times_two_ovld{}, vptr) == 10 );
       CHECK( other_vth->fn<times_two_ovld>()(times_two_ovld{}, vptr) == 10 );
     }
+  }
+
+  SECTION("direct_vtable_holder") {
+    using tite::detail::vtable;
+    using tite::detail::direct_vtable_holder;
+    using times_two_ovld = overload<times_two, int(tite::self)>;
+
+    auto vth = direct_vtable_holder<
+                 std::allocator<vtable<times_two_ovld>>,
+                 times_two_ovld>::construct<int>(std::allocator<int>{});
+
+    int i = 5;
+    void* vptr = &i;
+    CHECK( (*vth).fn<times_two_ovld>()(times_two_ovld{}, vptr) == 10 );
+    CHECK( vth->fn<times_two_ovld>()(times_two_ovld{}, vptr) == 10 );
   }
 }

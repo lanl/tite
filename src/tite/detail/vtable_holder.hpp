@@ -129,10 +129,10 @@ public:
     return vtable_;
   }
 
-  constexpr vtable<OverloadsT...> const& operator->() const
+  constexpr vtable<OverloadsT...> const* operator->() const
   noexcept
   {
-    return vtable_;
+    return std::addressof(vtable_);
   }
 
 private:
