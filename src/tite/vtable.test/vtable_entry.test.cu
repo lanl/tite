@@ -1,5 +1,5 @@
 #include "tite.hpp"
-#include "tite/vtable/cuda_invoke_pointer_policy.hpp"
+#include "tite/cuda_invoke_pointer_policy.hpp"
 
 #include "times_two.hpp"
 
@@ -10,8 +10,10 @@
 template<typename VTableEntryT>
 __global__ void call(VTableEntryT vte, int* const val)
 {
+  printf("in: %d\n", *val);
   void* vptr = val;
   *val = vte.fn()(times_two{}, vptr);
+  printf("out: %d\n", *val);
 }
 
 int run_vtable_entry_cuda_test() {
@@ -28,6 +30,7 @@ int run_vtable_entry_cuda_test() {
   cudaDeviceSynchronize();
 
   cudaMemcpy(&hint, dint, sizeof(int), cudaMemcpyDeviceToHost);
+  cudaDeviceSynchronize();
 
   return hint;
 }

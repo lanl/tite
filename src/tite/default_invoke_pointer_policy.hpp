@@ -1,7 +1,7 @@
-#ifndef TITE_VTABLE_DEFAULT_INVOKE_POINTER_POLICY_HPP
-#define TITE_VTABLE_DEFAULT_INVOKE_POINTER_POLICY_HPP
+#ifndef TITE_DETAIL_DEFAULT_INVOKE_POINTER_POLICY_HPP
+#define TITE_DETAIL_DEFAULT_INVOKE_POINTER_POLICY_HPP
 
-#include "tite/vtable/invoke.hpp"
+#include "tite/detail/vtable_invoke.hpp"
 
 namespace tite {
 
@@ -14,7 +14,7 @@ struct default_invoke_pointer_policy {
   constexpr void operator()(FunctionT*& ptr) const
   noexcept
   {
-    ptr = invoke<T,CPOT,ReturnT,ArgsT...>;
+    ptr = detail::vtable_invoke<T,CPOT,ReturnT,ArgsT...>;
   }
 };
 

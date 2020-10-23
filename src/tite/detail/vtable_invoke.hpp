@@ -1,16 +1,18 @@
-#ifndef TITE_VTABLE_INVOKE_HPP
-#define TITE_VTABLE_INVOKE_HPP
+#ifndef TITE_DETAIL_VTABLE_INVOKE_HPP
+#define TITE_DETAIL_VTABLE_INVOKE_HPP
 
 #include "tite/self.hpp"
 
 namespace tite {
 
+namespace detail {
+
 template<typename T,
          typename CPOT,
          typename ReturnT,
          typename... ArgsT>
-constexpr auto invoke(CPOT cpo,
-                      replace_self_with_void_ptr_t<ArgsT>... args)
+constexpr auto vtable_invoke(CPOT cpo,
+                             replace_self_with_void_ptr_t<ArgsT>... args)
 noexcept( noexcept( std::move(cpo)(replace_self<ArgsT>::get((ArgsT &&) args, std::declval<T&>())...) ) )
 -> ReturnT
 {
@@ -18,6 +20,8 @@ noexcept( noexcept( std::move(cpo)(replace_self<ArgsT>::get((ArgsT &&) args, std
   T& obj = *static_cast<T*>(self_ptr);
   return std::move(cpo)(replace_self<ArgsT>::get((ArgsT &&) args, obj)...);
 }
+
+} // namespace detail
 
 } // namespace tite
 
