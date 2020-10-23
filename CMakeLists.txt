@@ -12,6 +12,8 @@ project(tite
 include(CTest)
 include(CMakeDependentOption)
 
+include(cmake/tite_direct_vtable_max_size.cmake)
+
 option(TITE_ENABLE_CUDA OFF "enable CUDA components")
 
 CMAKE_DEPENDENT_OPTION(TITE_TESTING
@@ -28,6 +30,8 @@ target_compile_definitions(tite INTERFACE
   $<$<BOOL:${TITE_ENABLE_CUDA}>:TITE_ENABLE_CUDA> )
 
 target_compile_features(tite INTERFACE cxx_std_14)
+target_compile_definitions(tite INTERFACE
+  $<$<BOOL:$<TARGET_PROPERTY:TITE_DIRECT_VTABLE_SIZE_MAX>>:TITE_DIRECT_VTABLE_SIZE_MAX=$<TARGET_PROPERTY:TITE_DIRECT_VTABLE_SIZE_MAX>>)
 
 target_include_directories(tite INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src>
@@ -82,6 +86,7 @@ write_basic_package_version_file(titeConfigVersion.cmake
   COMPATIBILITY SameMajorVersion)
 
 install(FILES
+  cmake/tite_direct_vtable_max_size.cmake
   cmake/titeConfig.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/titeConfigVersion.cmake
   DESTINATION share/cmake/tite)

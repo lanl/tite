@@ -6,8 +6,8 @@
 
 #include <memory>
 
-#ifndef TITE_MAX_DIRECT_VTABLES
-#define TITE_MAX_DIRECT_VTABLES 1
+#ifndef TITE_DIRECT_VTABLE_SIZE_MAX
+#define TITE_DIRECT_VTABLE_SIZE_MAX 1
 #endif
 
 namespace tite {
@@ -147,7 +147,7 @@ private:
 
 template<typename AllocatorT, typename...OverloadsT>
 using vtable_holder_t = std::conditional_t<
-                          (sizeof...(OverloadsT) > TITE_MAX_DIRECT_VTABLES),
+                          (sizeof...(OverloadsT) > TITE_DIRECT_VTABLE_SIZE_MAX),
                           indirect_vtable_holder<AllocatorT, OverloadsT...>,
                           direct_vtable_holder<AllocatorT, OverloadsT...>>;
 

@@ -3,6 +3,8 @@ add_library(vtable.test.CXX OBJECT
   vtable.test.cpp
   vtable_holder.test.cpp)
 
+set_property(TARGET vtable.test.CXX PROPERTY TITE_DIRECT_VTABLE_SIZE_MAX 2)
+
 target_link_libraries(vtable.test.CXX PRIVATE
   tite::tite_testing)
 

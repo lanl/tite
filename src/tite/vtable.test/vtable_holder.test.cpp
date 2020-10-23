@@ -2,9 +2,12 @@
 #include "times_two.hpp"
 
 #include "catch2/catch.hpp"
+#include "tite/detail/vtable_holder.hpp"
 
 TEST_CASE("vtable_holder",
           "[vtable_holder]") {
+
+  CHECK( TITE_DIRECT_VTABLE_SIZE_MAX == 2 ); // from command line
 
   using tite::overload;
 
