@@ -9,4 +9,6 @@
 
 #include "tite/vtable.hpp"
 
+#include "tite/any_unique.hpp"
+
 #endif

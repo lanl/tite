@@ -23,7 +23,8 @@ public:
   noexcept
   -> typename vtable_entry<OverloadT>::function_t*
   {
-    return vtable_entry<OverloadT>::fn();
+    vtable_entry<OverloadT> const& vtable_entry_base = *this;
+    return vtable_entry_base.fn();
   }
 
 private:

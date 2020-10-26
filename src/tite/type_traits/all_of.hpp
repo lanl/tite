@@ -3,14 +3,17 @@
 
 namespace tite {
 
+template<template<typename> class Predicate, typename... ArgsT>
+struct all_of;
+
 template<template<typename> class Predicate, typename FirstT, typename... RestT>
-struct all_of {
+struct all_of<Predicate, FirstT, RestT...> {
   constexpr static bool value = Predicate<FirstT>::value and all_of<Predicate, RestT...>::value;
 };
 
-template<template<typename> class Predicate, typename OnlyT>
-struct all_of<Predicate, OnlyT> {
-  constexpr static bool value = Predicate<OnlyT>::value;
+template<template<typename> class Predicate>
+struct all_of<Predicate> {
+  constexpr static bool value = true;
 };
 
 template<template<typename> class Predicate, typename... TypesT>

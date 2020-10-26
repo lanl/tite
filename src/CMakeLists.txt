@@ -7,6 +7,7 @@ target_sources(tite INTERFACE
   ${prefix}/tite/default_invoke_pointer_policy.hpp
   ${prefix}/tite/cuda_invoke_pointer_policy.hpp
   ${prefix}/tite/vtable.hpp
+  ${prefix}/tite/any_unique.hpp
 
   # detail
   ${prefix}/tite/detail/vtable_invoke.hpp
@@ -30,4 +31,5 @@ if( TITE_TESTING )
   add_subdirectory(tite/type_traits.test)
   add_subdirectory(tite/overload.test)
   add_subdirectory(tite/vtable.test)
+  add_subdirectory(tite/any_unique.test)
 endif()

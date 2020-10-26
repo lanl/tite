@@ -16,10 +16,10 @@ private:
 public:
   template<typename ArgT>
   constexpr auto operator()(ArgT&& arg) const
-  noexcept( noexcept( tite::tag_invoke{}(std::declval<times_two const&>(), std::forward<ArgT>(arg)) ) )
-  -> decltype( tite::tag_invoke{}(std::declval<times_two const&>(), std::forward<ArgT>(arg)) )
+  noexcept( noexcept( tite::tag_invoke_fn{}(std::declval<times_two const&>(), std::forward<ArgT>(arg)) ) )
+  -> decltype( tite::tag_invoke_fn{}(std::declval<times_two const&>(), std::forward<ArgT>(arg)) )
   {
-    return tite::tag_invoke{}(*this, std::forward<ArgT>(arg));
+    return tite::tag_invoke_fn{}(*this, std::forward<ArgT>(arg));
   }
 };
 

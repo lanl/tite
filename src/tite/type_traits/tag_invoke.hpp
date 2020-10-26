@@ -9,36 +9,27 @@
 namespace tite {
 
 namespace tag_invoke_detail {
-    void tag_invoke();
+  void tag_invoke();
 
-    struct tag_invoke_fn {
-        template<typename CPO, typename... Args>
-        constexpr auto operator()(CPO&& cpo, Args&&... args) const
-            noexcept(noexcept(tag_invoke(std::declval<decltype(cpo)>(),
-                                         std::declval<decltype(args)>()...)))
-        -> decltype(tag_invoke(std::declval<decltype(cpo)>(),
-                               std::declval<decltype(args)>()...))
-        {
-            return tag_invoke(std::forward<CPO>(cpo), std::forward<Args>(args)...);
-        }
-    };
-
-    template<typename Dummy>
-    struct tag_invoke_init {
-      static tag_invoke_fn const tag_invoke;
-    };
-
-    template<typename Dummy>
-    tag_invoke_fn const tag_invoke_init<Dummy>::tag_invoke={};
+  struct tag_invoke_fn {
+    template<typename CPO, typename... Args>
+    constexpr auto operator()(CPO&& cpo, Args&&... args) const
+    noexcept(noexcept(tag_invoke(std::declval<CPO&&>(),
+                                 std::declval<Args&&>()...)))
+    -> decltype(tag_invoke(std::declval<CPO&&>(),
+                           std::declval<Args&&>()...))
+    {
+        return tag_invoke(std::forward<CPO>(cpo), std::forward<Args>(args)...);
+    }
+  };
 }
 
-// static constexpr auto& tag_invoke = tag_invoke_detail::tag_invoke_init<void>::tag_invoke;
-using tag_invoke = tag_invoke_detail::tag_invoke_fn;
+using tag_invoke_fn = tag_invoke_detail::tag_invoke_fn;
 
 template<typename CPO, typename... Args>
 struct tag_invoke_result {
-  using type = decltype(tag_invoke{}(std::declval<CPO &&>(),
-                                     std::declval<Args &&>()...));
+  using type = decltype(tag_invoke_fn{}(std::declval<CPO &&>(),
+                                        std::declval<Args &&>()...));
 };
 
 template<typename CPO, typename... Args>
@@ -47,8 +38,13 @@ using tag_invoke_result_t = typename tag_invoke_result<CPO, Args...>::type;
 template<typename CPO, typename, typename... Args>
 struct is_tag_invocable : std::false_type {};
 
+// template<typename CPO, typename... Args>
+// struct is_tag_invocable<CPO, void_t<tag_invoke_result_t<CPO,Args...>>, Args...>
+//     : std::true_type {};
+
 template<typename CPO, typename... Args>
-struct is_tag_invocable<CPO, void_t<tag_invoke_result_t<CPO,Args...>>, Args...>
+struct is_tag_invocable<CPO, void_t<decltype(tag_invoke_fn{}(std::declval<CPO>(),
+                                             std::declval<Args>()...))>, Args...>
     : std::true_type {};
 
 template<typename CPO, typename, typename... Args>
@@ -57,8 +53,8 @@ struct is_nothrow_tag_invocable : std::false_type {};
 template<typename CPO, typename... Args>
 struct is_nothrow_tag_invocable<CPO, void_t<tag_invoke_result_t<CPO,Args...>>, Args...> {
     static constexpr bool value =
-        noexcept(tag_invoke{}(std::declval<CPO &&>(),
-                              std::declval<Args &&>()...));
+        noexcept(tag_invoke_fn{}(std::declval<CPO &&>(),
+                                 std::declval<Args &&>()...));
 };
 
 template<typename CPO, typename... Args>

@@ -13,11 +13,11 @@ struct deallocate {
   using signature_t = void(self&&);
 
   template<typename T,
-           TITE_REQUIRES(is_tag_invocable<deallocate,T>::value)>
-  void operator()(T&& obj) const
+           TITE_REQUIRES(is_tag_invocable<deallocate, T&&>::value)>
+  constexpr void operator()(T&& obj) const
   noexcept
   {
-    tag_invoke(deallocate{}, std::forward<T>(obj));
+    tag_invoke_fn{}(deallocate{}, std::forward<T>(obj));
   }
 };
 

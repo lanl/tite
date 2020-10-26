@@ -19,11 +19,10 @@ struct replace_self {
   using type = ArgT;
 
   template<typename ArgT, typename T>
-  constexpr static auto get(ArgT&& arg, T& /*obj*/)
-  noexcept( noexcept( static_cast<ArgT &&>(arg) ) )
-  -> decltype( static_cast<ArgT &&>(arg) )
+  constexpr static ArgT&& get(ArgT&& arg, T& /*obj*/)
+  noexcept
   {
-    return static_cast<ArgT &&>(arg);
+    return std::forward<ArgT>(arg);
   }
 };
 
@@ -33,9 +32,8 @@ struct replace_self<self> {
   using type = T;
 
   template<typename ArgT, typename T>
-  constexpr static auto get(ArgT&& /*arg*/, T& obj)
-  noexcept( noexcept( static_cast<T &&>(obj) ) )
-  -> decltype( static_cast<T &&>(obj) )
+  constexpr static T&& get(ArgT&& /*arg*/, T& obj)
+  noexcept
   {
     return static_cast<T &&>(obj);
   }
@@ -47,9 +45,8 @@ struct replace_self<self&> {
   using type = T&;
 
   template<typename ArgT, typename T>
-  constexpr static auto get(ArgT&& /*arg*/, T& obj)
+  constexpr static T& get(ArgT&& /*arg*/, T& obj)
   noexcept
-  -> T&
   {
     return obj;
   }
@@ -61,9 +58,8 @@ struct replace_self<self&&> {
   using type = T&&;
 
   template<typename ArgT, typename T>
-  constexpr static auto get(ArgT&& /*arg*/, T& obj)
-  noexcept( noexcept( static_cast<T &&>(obj) ) )
-  -> decltype( static_cast<T &&>(obj) )
+  constexpr static T&& get(ArgT&& /*arg*/, T& obj)
+  noexcept
   {
     return static_cast<T &&>(obj);
   }
@@ -75,9 +71,8 @@ struct replace_self<self const&> {
   using type = T const&;
 
   template<typename ArgT, typename T>
-  constexpr static auto get(ArgT&& /*arg*/, T& obj)
+  constexpr static T const&  get(ArgT&& /*arg*/, T& obj)
   noexcept
-  -> T const&
   {
     return obj;
   }

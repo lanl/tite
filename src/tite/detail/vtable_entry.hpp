@@ -16,9 +16,10 @@ template<typename OverloadT,
          typename ReturnT,
          typename... ArgsT>
 struct vtable_entry<OverloadT, ReturnT(ArgsT...)> {
-protected:
+public:
   using function_t = ReturnT(OverloadT, replace_self_with_void_ptr_t<ArgsT>...);
 
+protected:
   explicit constexpr
   vtable_entry(function_t* fn)
   noexcept
