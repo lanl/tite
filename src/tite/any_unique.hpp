@@ -18,8 +18,10 @@ template <typename VTableAllocatorT,
 class any_unique
     : public detail::with_type_erased_tag_invoke<any_unique<VTableAllocatorT, OverloadsT...>, OverloadsT>... {
 private:
+  using vtable_allocator_t = typename std::allocator_traits<VTableAllocatorT>::
+                             template rebind_alloc<detail::vtable<detail::deallocate, OverloadsT...>>;
   using vtable_holder_t =
-      detail::vtable_holder_t<VTableAllocatorT, detail::deallocate, OverloadsT...>;
+      detail::vtable_holder_t<vtable_allocator_t, detail::deallocate, OverloadsT...>;
 
 public:
   template<typename ConcreteT,
@@ -92,7 +94,7 @@ public:
     }
   }
 
- private:
+private:
   template <typename ConcreteT, typename AllocatorT>
   struct concrete_impl final : private detail::with_forwarding_tag_invoke<
                                           concrete_impl<ConcreteT, AllocatorT>,
@@ -125,6 +127,7 @@ public:
   template <typename Derived, typename CPO, typename Sig>
   friend struct detail::with_type_erased_tag_invoke;
 
+public:
   const auto& get_vtable() const noexcept {
     return vtable_;
   }

@@ -16,8 +16,8 @@ struct get {
 
   template<typename T, typename IntT>
   constexpr auto operator()(T&& t, IntT index) const
-  // noexcept( noexcept( tite::tag_invoke_fn{}(std::declval<get>(), std::forward<T>(t), index) ) )
-  // -> decltype( tite::tag_invoke_fn{}(*this, std::forward<T>(t), index) )
+  noexcept( noexcept( tite::tag_invoke_fn{}(std::declval<get>(), std::forward<T>(t), index) ) )
+  -> decltype( tite::tag_invoke_fn{}(std::declval<get>(), std::forward<T>(t), index) )
   {
     return tite::tag_invoke_fn{}(*this, std::forward<T>(t), index);
   }
@@ -30,9 +30,8 @@ TEST_CASE("any_unique",
   using tite::overload;
   using tite::self;
 
-  // any_unique<std::allocator<unsigned char>> au = std::vector<int>{1,2,3,4,5};
   any_unique< std::allocator<unsigned char>,
-              overload<get, int(self, int)> > au = std::vector<int>{1,2,3,4,5};
+              overload<get, int(self&, int)> > au = std::vector<int>{1,2,3,4,5};
 
-  // CHECK( get{}(au, 2) == 3 );
+  CHECK( get{}(au, 2) == 3 );
 }

@@ -14,10 +14,10 @@ namespace tag_invoke_detail {
   struct tag_invoke_fn {
     template<typename CPO, typename... Args>
     constexpr auto operator()(CPO&& cpo, Args&&... args) const
-    // noexcept(noexcept(tag_invoke(std::declval<CPO&&>(),
-    //                              std::declval<Args&&>()...)))
-    // -> decltype(tag_invoke(std::declval<CPO&&>(),
-    //                        std::declval<Args&&>()...))
+    noexcept(noexcept(tag_invoke(std::declval<CPO&&>(),
+                                 std::declval<Args&&>()...)))
+    -> decltype(tag_invoke(std::declval<CPO&&>(),
+                           std::declval<Args&&>()...))
     {
         return tag_invoke(std::forward<CPO>(cpo), std::forward<Args>(args)...);
     }
