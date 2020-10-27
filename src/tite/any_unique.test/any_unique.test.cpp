@@ -30,8 +30,16 @@ TEST_CASE("any_unique",
   using tite::overload;
   using tite::self;
 
-  any_unique< std::allocator<unsigned char>,
-              overload<get, int(self&, int)> > au = std::vector<int>{1,2,3,4,5};
+  any_unique< tite::default_memory_space,
+              overload<get, int(self&, int)> > au1 = std::vector<int>{1,2,3,4,5};
 
-  CHECK( get{}(au, 2) == 3 );
+  decltype(au1) au2{au1};
+
+  decltype(au1) au3{au1};
+
+  au3 = au2;
+
+  CHECK( get{}(au1, 2) == 3 );
+  CHECK( get{}(au2, 4) == 5 );
+  CHECK( get{}(au3, 0) == 1 );
 }

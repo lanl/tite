@@ -11,4 +11,6 @@
 
 #include "tite/any_unique.hpp"
 
+#include "tite/memory_space.hpp"
+
 #endif

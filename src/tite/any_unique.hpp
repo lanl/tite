@@ -4,6 +4,7 @@
 #include "tite/detail/with_forwarding_tag_invoke.hpp"
 #include "tite/detail/with_type_erased_tag_invoke.hpp"
 #include "tite/detail/deallocate.hpp"
+#include "tite/detail/copy.hpp"
 #include "tite/vtable.hpp"
 #include "tite/type_traits.hpp"
 #include "tite/utility/in_place.hpp"
@@ -13,15 +14,14 @@
 
 namespace tite {
 
-template <typename VTableAllocatorT,
-          typename... OverloadsT>
+template<typename MemorySpace,
+         typename... OverloadsT>
 class any_unique
-    : public detail::with_type_erased_tag_invoke<any_unique<VTableAllocatorT, OverloadsT...>, OverloadsT>... {
+    : private detail::with_type_erased_tag_invoke<any_unique<MemorySpace, OverloadsT...>, OverloadsT>... {
 private:
-  using vtable_allocator_t = typename std::allocator_traits<VTableAllocatorT>::
-                             template rebind_alloc<detail::vtable<detail::deallocate, OverloadsT...>>;
+  using vtable_allocator_t = typename MemorySpace::template allocator<detail::vtable<detail::copy, detail::deallocate, OverloadsT...>>;
   using vtable_holder_t =
-      detail::vtable_holder_t<vtable_allocator_t, detail::deallocate, OverloadsT...>;
+      detail::vtable_holder_t<vtable_allocator_t, detail::copy, detail::deallocate, OverloadsT...>;
 
 public:
   template<typename ConcreteT,
@@ -55,6 +55,7 @@ public:
            TITE_REQUIRES(std::is_constructible<remove_cvref_t<ConcreteT>, ConcreteT&&>::value),
            TITE_REQUIRES(not std::is_same<std::allocator_arg_t, std::decay_t<ConcreteT>>::value ),
            TITE_REQUIRES(not is_specialization_of<in_place_type_t, std::decay_t<ConcreteT>>::value),
+           TITE_REQUIRES(is_specialization_of<MemorySpace::template allocator, AllocatorT>::value),
            TITE_REQUIRES(is_type_erasable_v<ConcreteT, OverloadsT...>)>
   any_unique(ConcreteT&& concrete, AllocatorT alloc)
   : any_unique(std::allocator_arg_t{},
@@ -69,7 +70,7 @@ public:
            TITE_REQUIRES(is_type_erasable_v<ConcreteT, OverloadsT...>)>
   explicit any_unique(in_place_type_t<ConcreteT> tag, ArgsT&&... args)
   : any_unique(std::allocator_arg,
-               std::allocator<unsigned char>{},
+               typename MemorySpace::template allocator<unsigned char>{},
                tag,
                std::forward<ArgsT>(args)...)
   {}
@@ -84,8 +85,44 @@ public:
                std::forward<ConcreteT>(concrete)}
   {}
 
+  any_unique(any_unique const& other)
+  : vtable_{ other.vtable_ }
+  {
+    auto copyFn = vtable_->template fn<detail::copy>();
+    copyFn(detail::copy{}, other.impl_, impl_);
+  }
+
   any_unique(any_unique&& other) noexcept
-      : impl_(std::exchange(other.impl_, nullptr)), vtable_(other.vtable_) {}
+  : impl_(std::exchange(other.impl_, nullptr))
+  , vtable_(std::move(other.vtable_))
+  {}
+
+  any_unique& operator=(any_unique const& other) {
+    if( this == std::addressof(other) ) return *this;
+
+    if (impl_ != nullptr) {
+      auto deallocateFn = vtable_->template fn<detail::deallocate>();
+      deallocateFn(detail::deallocate{}, impl_);
+    }
+
+    vtable_ = other.vtable_;
+    auto copyFn = vtable_->template fn<detail::copy>();
+    copyFn(detail::copy{}, other.impl_, impl_);
+    return *this;
+  }
+
+  any_unique& operator=(any_unique&& other) {
+    if( this == std::addressof(other) ) return *this;
+
+    if (impl_ != nullptr) {
+      auto deallocateFn = vtable_->template fn<detail::deallocate>();
+      deallocateFn(detail::deallocate{}, impl_);
+    }
+
+    impl_ = std::exchange(other.impl_, nullptr);
+    vtable_ = std::move(other.vtable_);
+    return *this;
+  }
 
   ~any_unique() {
     if (impl_ != nullptr) {
@@ -119,6 +156,25 @@ private:
       std::allocator_traits<allocator_type>::destroy(allocCopy, std::addressof(impl));
       std::allocator_traits<allocator_type>::deallocate(allocCopy, std::addressof(impl), 1);
     }
+
+    friend void tag_invoke(detail::copy,
+                           concrete_impl const& from,
+                           void*& to)
+    {
+      concrete_impl temp{from};
+      to = std::allocator_traits<allocator_type>::allocate(temp.alloc, 1);
+      try {
+        std::allocator_traits<allocator_type>::construct(temp.alloc,
+                                                         static_cast<concrete_impl*>(to),
+                                                         std::move(temp));
+      } catch(...) {
+        std::allocator_traits<allocator_type>::deallocate(temp.alloc,
+                                                          static_cast<concrete_impl*>(to),
+                                                          1);
+        throw;
+      }
+    }
+
 
     ConcreteT value;
     allocator_type alloc;
