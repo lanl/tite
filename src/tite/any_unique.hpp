@@ -16,8 +16,7 @@ namespace tite {
 template <typename VTableAllocatorT,
           typename... OverloadsT>
 class any_unique
-    : private detail::
-          with_type_erased_tag_invoke<any_unique<OverloadsT...>, OverloadsT>... {
+    : public detail::with_type_erased_tag_invoke<any_unique<VTableAllocatorT, OverloadsT...>, OverloadsT>... {
 private:
   using vtable_holder_t =
       detail::vtable_holder_t<VTableAllocatorT, detail::deallocate, OverloadsT...>;

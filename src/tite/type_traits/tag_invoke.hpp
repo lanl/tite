@@ -14,10 +14,10 @@ namespace tag_invoke_detail {
   struct tag_invoke_fn {
     template<typename CPO, typename... Args>
     constexpr auto operator()(CPO&& cpo, Args&&... args) const
-    noexcept(noexcept(tag_invoke(std::declval<CPO&&>(),
-                                 std::declval<Args&&>()...)))
-    -> decltype(tag_invoke(std::declval<CPO&&>(),
-                           std::declval<Args&&>()...))
+    // noexcept(noexcept(tag_invoke(std::declval<CPO&&>(),
+    //                              std::declval<Args&&>()...)))
+    // -> decltype(tag_invoke(std::declval<CPO&&>(),
+    //                        std::declval<Args&&>()...))
     {
         return tag_invoke(std::forward<CPO>(cpo), std::forward<Args>(args)...);
     }
@@ -35,33 +35,40 @@ struct tag_invoke_result {
 template<typename CPO, typename... Args>
 using tag_invoke_result_t = typename tag_invoke_result<CPO, Args...>::type;
 
-template<typename CPO, typename, typename... Args>
-struct is_tag_invocable : std::false_type {};
-
-// template<typename CPO, typename... Args>
-// struct is_tag_invocable<CPO, void_t<tag_invoke_result_t<CPO,Args...>>, Args...>
-//     : std::true_type {};
-
 template<typename CPO, typename... Args>
-struct is_tag_invocable<CPO, void_t<decltype(tag_invoke_fn{}(std::declval<CPO>(),
-                                             std::declval<Args>()...))>, Args...>
-    : std::true_type {};
+struct is_tag_invocable {
+private:
+  template<typename CPO_, typename = void>
+  struct impl : std::false_type {};
 
-template<typename CPO, typename, typename... Args>
-struct is_nothrow_tag_invocable : std::false_type {};
+  template<typename CPO_>
+  struct impl<CPO_, void_t<tag_invoke_result_t<CPO_, Args...>>> : std::true_type {};
 
-template<typename CPO, typename... Args>
-struct is_nothrow_tag_invocable<CPO, void_t<tag_invoke_result_t<CPO,Args...>>, Args...> {
-    static constexpr bool value =
-        noexcept(tag_invoke_fn{}(std::declval<CPO &&>(),
-                                 std::declval<Args &&>()...));
+public:
+  constexpr static bool value = impl<CPO>::value;
 };
 
 template<typename CPO, typename... Args>
-constexpr static bool is_tag_invocable_v = is_tag_invocable<CPO, void, Args...>::value;
+struct is_nothrow_tag_invocable {
+private:
+  template<typename CPO_, typename = void>
+  struct impl : std::false_type {};
+
+  template<typename CPO_>
+  struct impl<CPO_, void_t<tag_invoke_result_t<CPO_, Args...>>> {
+    constexpr static bool value = noexcept( tag_invoke_fn{}(std::declval<CPO &&>(),
+                                                            std::declval<Args &&>()...) );
+  };
+
+public:
+  constexpr static bool value = impl<CPO>::value;
+};
 
 template<typename CPO, typename... Args>
-constexpr static bool is_nothrow_tag_invocable_v = is_nothrow_tag_invocable<CPO, void, Args...>::value;
+constexpr static bool is_tag_invocable_v = is_tag_invocable<CPO, Args...>::value;
+
+template<typename CPO, typename... Args>
+constexpr static bool is_nothrow_tag_invocable_v = is_nothrow_tag_invocable<CPO, Args...>::value;
 
 } // namespace tite
 
