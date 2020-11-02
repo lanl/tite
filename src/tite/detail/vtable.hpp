@@ -2,6 +2,7 @@
 #define TITE_DETAIL_VTABLE_HPP
 
 #include "tite/detail/vtable_entry.hpp"
+#include "tite/memory_space.hpp"
 
 namespace tite {
 
@@ -10,12 +11,11 @@ namespace detail {
 template<typename... OverloadsT>
 struct vtable : private vtable_entry<OverloadsT>... {
 public:
-  template<typename T,
-           template<typename...> class InvokePointerPolicy=default_invoke_pointer_policy>
+  template<typename T>
   static constexpr vtable construct()
   noexcept
   {
-    return vtable{vtable_entry<OverloadsT>::template construct<T,InvokePointerPolicy>()...};
+    return vtable{vtable_entry<OverloadsT>::template construct<T>()...};
   }
 
   template<typename OverloadT>
@@ -33,6 +33,9 @@ private:
   : vtable_entry<OverloadsT>{entries}...
   {}
 };
+
+template<typename T, typename... OverloadsT>
+constexpr static vtable<OverloadsT...> vtable_for = vtable<OverloadsT...>::template construct<T>();
 
 } // namespace detail
 

@@ -2,7 +2,7 @@
 #define TITE_DETAIL_VTABLE_ENTRY_HPP
 
 #include "tite/self.hpp"
-#include "tite/default_invoke_pointer_policy.hpp"
+#include "tite/detail/vtable_invoke.hpp"
 
 namespace tite {
 
@@ -33,12 +33,9 @@ public:
     return *fn_;
   }
 
-  template<typename T,
-           template<typename...> class InvokePointerPolicy=default_invoke_pointer_policy>
+  template<typename T>
   static constexpr vtable_entry construct() noexcept {
-    function_t* ptr = nullptr;
-    InvokePointerPolicy<T,OverloadT,ReturnT,ArgsT...>{}(ptr);
-    return vtable_entry{ ptr };
+    return vtable_entry{ &vtable_invoke<T,OverloadT,ReturnT,ArgsT...> };
   }
 };
 

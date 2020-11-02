@@ -1,7 +1,7 @@
 add_library(vtable.test.CXX OBJECT
   vtable_entry.test.cpp
-  vtable.test.cpp
-  vtable_holder.test.cpp)
+  vtable.test.cpp)
+  # vtable_holder.test.cpp)
 
 set_property(TARGET vtable.test.CXX PROPERTY TITE_DIRECT_VTABLE_SIZE_MAX 2)
 
@@ -10,7 +10,8 @@ target_link_libraries(vtable.test.CXX PRIVATE
 
 if( TITE_ENABLE_CUDA )
   add_library(vtable.test.CUDA OBJECT
-    vtable_entry.test.cu )
+    vtable_entry.test.cu
+    vtable.test.cu )
   target_link_libraries(vtable.test.CUDA PRIVATE
     tite::tite)
   target_compile_options(vtable.test.CUDA PRIVATE
