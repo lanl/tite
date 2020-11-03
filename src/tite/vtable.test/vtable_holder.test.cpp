@@ -37,10 +37,8 @@ TEST_CASE("vtable_holder",
     void* vptr = &i;
     CHECK( dvth->template fn<times_two_ovld>()(times_two_ovld{}, vptr) == 10 );
 
-/*
 #   ifdef TITE_ENABLE_CUDA
     CHECK( run_direct_vtable_holder_cuda_test() == 10 );
 #   endif
-*/
   }
 }

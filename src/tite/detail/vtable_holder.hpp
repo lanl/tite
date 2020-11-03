@@ -18,11 +18,11 @@ template<typename... OverloadsT>
 struct indirect_vtable_holder {
 public:
   template<typename T,
-           template<typename...> class VTablePointer=VTablePointerPolicy>
+           template<typename...> class VTablePointerPolicy=default_vtable_pointer_policy>
   constexpr static indirect_vtable_holder construct()
   noexcept
   {
-    return indirect_vtable_holder{ VTablePointer<T,OverloadsT...>{}() };
+    return indirect_vtable_holder{ VTablePointerPolicy<T,OverloadsT...>{}() };
   }
 
   constexpr vtable<OverloadsT...> const& operator*() const
@@ -51,11 +51,11 @@ template<typename... OverloadsT>
 struct direct_vtable_holder {
 public:
   template<typename T,
-           template<typename...> class VTablePointer=VTablePointerPolicy>
+           template<typename...> class VTablePointerPolicy=default_vtable_pointer_policy>
   constexpr static direct_vtable_holder construct()
   noexcept
   {
-    return direct_vtable_holder{ *VTablePointer<T,OverloadsT...>{}() };
+    return direct_vtable_holder{VTablePointerPolicy<T,OverloadsT...>{}};
   }
 
   constexpr vtable<OverloadsT...> const& operator*() const
@@ -71,17 +71,13 @@ public:
   }
 
 private:
+  template<typename VTablePointerPolicyT>
   constexpr
-  direct_vtable_holder(vtable<OverloadsT...> const& v)
+  direct_vtable_holder(VTablePointerPolicyT vtpolicy)
   noexcept
-  : vtable_{v}
-  {}
-
-  constexpr
-  direct_vtable_holder(vtable<OverloadsT...>&& v)
-  noexcept
-  : vtable_{std::move(v)}
-  {}
+  {
+    vtpolicy(vtable_);
+  }
 
   vtable<OverloadsT...> vtable_;
 };

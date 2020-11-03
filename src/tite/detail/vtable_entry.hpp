@@ -20,6 +20,12 @@ public:
   using function_t = ReturnT(OverloadT, replace_self_with_void_ptr_t<ArgsT>...);
 
 protected:
+  constexpr
+  vtable_entry()
+  noexcept
+  : fn_{ nullptr }
+  {}
+
   explicit constexpr
   vtable_entry(function_t* fn)
   noexcept

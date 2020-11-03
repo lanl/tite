@@ -2,7 +2,6 @@
 #define TITE_DETAIL_VTABLE_HPP
 
 #include "tite/detail/vtable_entry.hpp"
-#include "tite/memory_space.hpp"
 
 namespace tite {
 
@@ -27,6 +26,8 @@ public:
     return vtable_entry_base.fn();
   }
 
+  constexpr
+  vtable() = default;
 private:
   explicit constexpr
   vtable(vtable_entry<OverloadsT>... entries)
@@ -38,12 +39,19 @@ template<typename T, typename... OverloadsT>
 constexpr static vtable<OverloadsT...> vtable_for = vtable<OverloadsT...>::template construct<T>();
 
 template<typename T, typename... OverloadsT>
-struct VTablePointerPolicy {
+struct default_vtable_pointer_policy {
   constexpr vtable<OverloadsT...> const*
   operator()()
   noexcept
   {
     return &vtable_for<T,OverloadsT...>;
+  }
+
+  constexpr void
+  operator()(vtable<OverloadsT...>& v)
+  noexcept
+  {
+    v = vtable_for<T,OverloadsT...>;
   }
 };
 
