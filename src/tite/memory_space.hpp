@@ -1,7 +1,7 @@
-#ifndef TITE_MEMORY_SPACE_POLICY_HPP
-#define TITE_MEMORY_SPACE_POLICY_HPP
+#ifndef TITE_MEMORY_SPACE_HPP
+#define TITE_MEMORY_SPACE_HPP
 
-#include "tite/default_invoke_pointer_policy.hpp"
+#include "tite/detail/vtable.hpp"
 
 #include <memory>
 
@@ -9,7 +9,7 @@ namespace tite {
 
 template<template<typename> class AllocatorC,
          template<typename...> class VTablePointerC>
-struct memory_space_policy {
+struct memory_space {
   template<typename T>
   using allocator = AllocatorC<T>;
 
@@ -17,8 +17,8 @@ struct memory_space_policy {
   using vtable_pointer_policy = VTablePointerC<ArgsT...>;
 };
 
-using default_memory_policy = memory_space_policy<std::allocator,
-                                                  default_invoke_pointer_policy>;
+using default_memory_space = memory_space<std::allocator,
+                                          detail::default_vtable_pointer_policy>;
 
 } // namespace tite
 

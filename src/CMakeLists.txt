@@ -4,8 +4,6 @@ target_sources(tite INTERFACE
 
   ${prefix}/tite/self.hpp
   ${prefix}/tite/overload.hpp
-  ${prefix}/tite/default_invoke_pointer_policy.hpp
-  ${prefix}/tite/cuda_invoke_pointer_policy.hpp
   ${prefix}/tite/vtable.hpp
   ${prefix}/tite/any_unique.hpp
 

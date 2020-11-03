@@ -1,4 +1,5 @@
 #include "tite.hpp"
+#include "tite/detail/cuda_vtable.hpp"
 
 #include "times_two.hpp"
 
@@ -6,13 +7,13 @@
 
 #include <cstdio>
 
-template<typename T, typename... OverloadsT>
-__device__ static tite::detail::vtable<OverloadsT...> cuda_vtable_for = tite::detail::vtable<OverloadsT...>::template construct<T>();
-
 __global__ void vtable_test_kernel(int* const val)
 {
   using tite::overload;
+  using tite::detail::cuda_vtable_for;
+
   using times_two_ovld = overload<times_two, int(tite::self)>;
+
   auto& vt = cuda_vtable_for<int, times_two_ovld>;
   void* vptr = val;
   *val = vt.template fn<times_two_ovld>()(times_two{}, vptr);

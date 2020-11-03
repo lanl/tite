@@ -1,36 +1,11 @@
 #include "tite.hpp"
+#include "tite/detail/cuda_vtable.hpp"
 
 #include "times_two.hpp"
 
 #include "cuda.h"
 
 #include <cstdio>
-
-template<typename T, typename... OverloadsT>
-__constant__ static tite::detail::vtable<OverloadsT...> const cuda_vtable_for = tite::detail::vtable<OverloadsT...>::template construct<T>();
-template<typename T, typename... OverloadsT>
-__constant__ static tite::detail::vtable<OverloadsT...> const* cuda_vtable_ptr = &cuda_vtable_for<T,OverloadsT...>;
-
-template<typename T, typename... OverloadsT>
-struct CudaVTablePointerPolicy {
-  constexpr tite::detail::vtable<OverloadsT...> const*
-  operator()()
-  noexcept
-  {
-    tite::detail::vtable<OverloadsT...>* ptr = nullptr; 
-    cudaMemcpyFromSymbol(&ptr, cuda_vtable_ptr<T,OverloadsT...>, sizeof(cuda_vtable_ptr<T,OverloadsT...>));
-    return ptr;
-  }
-
-  constexpr void 
-  operator()(tite::detail::vtable<OverloadsT...>& v)
-  noexcept
-  {
-    cudaMemcpyFromSymbol(&v,
-                         cuda_vtable_for<T,OverloadsT...>,
-                         sizeof(tite::detail::vtable<OverloadsT...>));
-  }
-};
 
 namespace cuda_vtable_holder_test {
   using tite::overload;
@@ -54,7 +29,8 @@ int run_indirect_vtable_holder_cuda_test() {
 
   using cuda_vtable_holder_test::times_two_ovld;
   using tite::detail::indirect_vtable_holder;
-  auto ivth = indirect_vtable_holder<times_two_ovld>::template construct<int,CudaVTablePointerPolicy>();
+  using tite::detail::cuda_vtable_pointer_policy;
+  auto ivth = indirect_vtable_holder<times_two_ovld>::template construct<int,cuda_vtable_pointer_policy>();
 
   vtable_holder_test_kernel<<<1,1>>>(ivth, dint);
   cudaDeviceSynchronize();
@@ -73,7 +49,8 @@ int run_direct_vtable_holder_cuda_test() {
 
   using cuda_vtable_holder_test::times_two_ovld;
   using tite::detail::direct_vtable_holder;
-  auto dvth = direct_vtable_holder<times_two_ovld>::template construct<int,CudaVTablePointerPolicy>();
+  using tite::detail::cuda_vtable_pointer_policy;
+  auto dvth = direct_vtable_holder<times_two_ovld>::template construct<int,cuda_vtable_pointer_policy>();
 
   vtable_holder_test_kernel<<<1,1>>>(dvth, dint);
   cudaDeviceSynchronize();
