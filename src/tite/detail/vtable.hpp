@@ -37,6 +37,16 @@ private:
 template<typename T, typename... OverloadsT>
 constexpr static vtable<OverloadsT...> vtable_for = vtable<OverloadsT...>::template construct<T>();
 
+template<typename T, typename... OverloadsT>
+struct VTablePointerPolicy {
+  constexpr vtable<OverloadsT...> const*
+  operator()()
+  noexcept
+  {
+    return &vtable_for<T,OverloadsT...>;
+  }
+};
+
 } // namespace detail
 
 } // namespace tite
