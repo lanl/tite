@@ -19,9 +19,7 @@ template<typename MemorySpace,
 class any_unique
     : private detail::with_type_erased_tag_invoke<any_unique<MemorySpace, OverloadsT...>, OverloadsT>... {
 private:
-  using vtable_allocator_t = typename MemorySpace::template allocator<detail::vtable<detail::copy, detail::deallocate, OverloadsT...>>;
-  using vtable_holder_t =
-      detail::vtable_holder_t<vtable_allocator_t, detail::copy, detail::deallocate, OverloadsT...>;
+  using vtable_holder_t = detail::vtable_holder_t<detail::copy, detail::deallocate, OverloadsT...>;
 
 public:
   template<typename ConcreteT,
@@ -33,7 +31,8 @@ public:
                       AllocatorT alloc,
                       in_place_type_t<ConcreteT>,
                       ArgsT&&... args)
-  : vtable_{vtable_holder_t::template construct<concrete_impl<ConcreteT, AllocatorT>>(alloc)}
+  : vtable_{vtable_holder_t::template construct<concrete_impl<ConcreteT, AllocatorT>,
+                                                              MemorySpace::template vtable_pointer_policy>()}
   {
     using concrete_type = concrete_impl<ConcreteT, AllocatorT>;
     using allocator_type = typename concrete_type::allocator_type;

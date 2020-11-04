@@ -82,11 +82,19 @@ private:
   vtable<OverloadsT...> vtable_;
 };
 
-template<typename...OverloadsT>
-using vtable_holder_t = std::conditional_t<
-                          (sizeof...(OverloadsT) > TITE_DIRECT_VTABLE_SIZE_MAX),
-                          indirect_vtable_holder<OverloadsT...>,
-                          direct_vtable_holder<OverloadsT...>>;
+/* had to do this because nvcc couldn't parse std::conditional_t */
+template<typename... OverloadsT>
+struct vtable_holder {
+private:
+  constexpr static bool check = sizeof...(OverloadsT) > TITE_DIRECT_VTABLE_SIZE_MAX;
+public:
+  using type = std::conditional_t<check,
+                                  direct_vtable_holder<OverloadsT...>,
+                                  indirect_vtable_holder<OverloadsT...>>;
+};
+
+template<typename... OverloadsT>
+using vtable_holder_t = typename vtable_holder<OverloadsT...>::type;
 
 } // namespace detail
 

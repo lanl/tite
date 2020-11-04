@@ -9,8 +9,8 @@
 
 #include "tite/vtable.hpp"
 
-// #include "tite/any_unique.hpp"
-
 #include "tite/memory_space.hpp"
+
+#include "tite/any_unique.hpp"
 
 #endif
