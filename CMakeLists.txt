@@ -29,7 +29,7 @@ add_library(tite::tite ALIAS tite)
 target_compile_definitions(tite INTERFACE
   $<$<BOOL:${TITE_ENABLE_CUDA}>:TITE_ENABLE_CUDA> )
 target_compile_options(tite INTERFACE
-  $<$<CUDA_COMPILER_ID:NVIDIA>:-expt-relaxed-constexpr>)
+  $<$<CUDA_COMPILER_ID:NVIDIA>:$<$<COMPILE_LANGUAGE:CUDA>:-expt-relaxed-constexpr>>)
 
 target_compile_features(tite INTERFACE cxx_std_14)
 target_compile_definitions(tite INTERFACE
