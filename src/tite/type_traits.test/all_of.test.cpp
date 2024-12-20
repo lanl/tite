@@ -1,6 +1,6 @@
 #include "tite.hpp"
 
-#include "catch2/catch.hpp"
+#include "catch2/catch_test_macros.hpp"
 
 template<typename T>
 using is_int = std::is_same<T,int>;

@@ -1,7 +1,7 @@
 #include "tite.hpp"
 #include "times_two.hpp"
 
-#include "catch2/catch.hpp"
+#include "catch2/catch_test_macros.hpp"
 
 #ifdef TITE_ENABLE_CUDA
 int run_vtable_cuda_test();

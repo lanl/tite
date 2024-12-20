@@ -1,7 +1,6 @@
 #ifndef TITE_OVERLOAD_HPP
 #define TITE_OVERLOAD_HPP
 
-#include <xlocale.h>
 namespace tite {
 
 template<typename CPOT,
