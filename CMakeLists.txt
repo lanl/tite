@@ -20,14 +20,28 @@ CMAKE_DEPENDENT_OPTION(TITE_TESTING
   "Build tite tests" ${tite_testing_default}
   "BUILD_TESTING" OFF)
 
+if( TITE_ENABLE_CUDA AND TITE_ENABLE_HIP )
+  message(FATAL_ERROR "Cannot enable both TITE_ENABLE_CUDA and TITE_ENABLE_HIP")
+endif()
+
 if( TITE_ENABLE_CUDA )
   enable_language(CUDA)
+  set(TITE_GPU_LANGUAGE "CUDA")
+endif()
+
+if( TITE_ENABLE_HIP )
+  enable_language(HIP)
+  set(TITE_GPU_LANGUAGE "HIP")
+endif()
+
+if( TITE_ENABLE_CUDA OR TITE_ENABLE_HIP )
+  set(TITE_ENABLE_GPU TRUE)
 endif()
 
 add_library(tite INTERFACE)
 add_library(tite::tite ALIAS tite)
 target_compile_definitions(tite INTERFACE
-  $<$<BOOL:${TITE_ENABLE_CUDA}>:TITE_ENABLE_CUDA> )
+  $<$<BOOL:${TITE_ENABLE_CUDA}>:TITE_ENABLE_GPU> )
 target_compile_options(tite INTERFACE
   $<$<CUDA_COMPILER_ID:NVIDIA>:$<$<COMPILE_LANGUAGE:CUDA>:-expt-relaxed-constexpr>>)
 

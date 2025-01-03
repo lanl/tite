@@ -3,13 +3,13 @@
 
 #include "tite/type_traits.hpp"
 
+#include "tite/utility.hpp"
+
 #include "tite/self.hpp"
 
 #include "tite/overload.hpp"
 
 #include "tite/vtable.hpp"
-
-#include "tite/memory_space.hpp"
 
 #include "tite/any_unique.hpp"
 

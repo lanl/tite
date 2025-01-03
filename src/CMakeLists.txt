@@ -2,27 +2,42 @@ set(prefix $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>$<INSTALL_INTERFACE:inclu
 target_sources(tite INTERFACE
   ${prefix}/tite.hpp
 
-  ${prefix}/tite/self.hpp
-  ${prefix}/tite/overload.hpp
-  ${prefix}/tite/vtable.hpp
   ${prefix}/tite/any_unique.hpp
+  $<$<BOOL:${TITE_ENABLE_GPU}>:${prefix}/tite/gpu_allocator.hpp>
+  ${prefix}/tite/overload.hpp
+  ${prefix}/tite/self.hpp
+  ${prefix}/tite/type_traits.hpp
+  ${prefix}/tite/utility.hpp
+  ${prefix}/tite/vtable.hpp
 
   # detail
-  ${prefix}/tite/detail/vtable_invoke.hpp
-  ${prefix}/tite/detail/vtable_entry.hpp
+  ${prefix}/tite/detail/copy.hpp
+  ${prefix}/tite/detail/deallocate.hpp
+  $<$<BOOL:${TITE_ENABLE_GPU}>:${prefix}/tite/detail/gpu_functions.hpp>
+  $<$<BOOL:${TITE_ENABLE_GPU}>:${prefix}/tite/detail/gpu_vtable.hpp>
   ${prefix}/tite/detail/vtable.hpp
+  ${prefix}/tite/detail/vtable_entry.hpp
   ${prefix}/tite/detail/vtable_holder.hpp
+  ${prefix}/tite/detail/vtable_invoke.hpp
+  ${prefix}/tite/detail/with_forwarding_tag_invoke.hpp
+  ${prefix}/tite/detail/with_type_erased_tag_invoke.hpp
 
   # type_traits
   ${prefix}/tite/type_traits.hpp
 
-  ${prefix}/tite/type_traits/void_t.hpp
-  ${prefix}/tite/type_traits/tag_invoke.hpp
-
+  ${prefix}/tite/type_traits/all_of.hpp
   ${prefix}/tite/type_traits/invocable.hpp
   ${prefix}/tite/type_traits/is_cpo_invocable.hpp
+  ${prefix}/tite/type_traits/is_specialization_of.hpp
+  ${prefix}/tite/type_traits/is_type_erasable.hpp
+  ${prefix}/tite/type_traits/remove_cvref.hpp
+  ${prefix}/tite/type_traits/requires.hpp
+  ${prefix}/tite/type_traits/tag_invoke.hpp
+  ${prefix}/tite/type_traits/void_t.hpp
 
-  ${prefix}/tite/type_traits/requires.hpp)
+  # utlity
+  ${prefix}/tite/utility/in_place.hpp
+)
 
 if( TITE_TESTING )
   add_subdirectory(tite/self.test)

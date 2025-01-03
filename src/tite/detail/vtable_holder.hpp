@@ -18,11 +18,11 @@ template<typename... OverloadsT>
 struct indirect_vtable_holder {
 public:
   template<typename T,
-           template<typename...> class VTablePointerPolicy=default_vtable_pointer_policy>
-  constexpr static indirect_vtable_holder construct()
+           typename AllocatorT=std::allocator<T>>
+  constexpr static indirect_vtable_holder construct(AllocatorT&& allocator={})
   noexcept
   {
-    return indirect_vtable_holder{ VTablePointerPolicy<T,OverloadsT...>{}() };
+    return indirect_vtable_holder{get_vtable_pointer<T, OverloadsT...>(std::forward<AllocatorT>(allocator))};
   }
 
   constexpr vtable<OverloadsT...> const& operator*() const
@@ -51,11 +51,11 @@ template<typename... OverloadsT>
 struct direct_vtable_holder {
 public:
   template<typename T,
-           template<typename...> class VTablePointerPolicy=default_vtable_pointer_policy>
-  constexpr static direct_vtable_holder construct()
+           typename AllocatorT=std::allocator<T>>
+  constexpr static direct_vtable_holder construct(AllocatorT&& allocator={})
   noexcept
   {
-    return direct_vtable_holder{VTablePointerPolicy<T,OverloadsT...>{}};
+    return direct_vtable_holder{get_vtable<T, OverloadsT...>(std::forward<AllocatorT>(allocator))};
   }
 
   constexpr vtable<OverloadsT...> const& operator*() const
@@ -71,13 +71,11 @@ public:
   }
 
 private:
-  template<typename VTablePointerPolicyT>
   constexpr
-  direct_vtable_holder(VTablePointerPolicyT vtpolicy)
+  direct_vtable_holder(vtable<OverloadsT...> v)
   noexcept
-  {
-    vtpolicy(vtable_);
-  }
+  : vtable_{v}
+  {}
 
   vtable<OverloadsT...> vtable_;
 };

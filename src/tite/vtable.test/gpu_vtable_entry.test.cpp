@@ -1,5 +1,5 @@
 #include "tite.hpp"
-// #include "tite/cuda_invoke_pointer_policy.hpp"
+#include "tite/detail/gpu_functions.hpp"
 
 #include "times_two.hpp"
 
@@ -15,18 +15,18 @@ __global__ void vtable_entry_test_kernel(int* const val)
   *val = vte.fn()(times_two{}, vptr);
 }
 
-int run_vtable_entry_cuda_test() {
+int run_vtable_entry_gpu_test() {
 
   int hint = 5;
   int* dint;
-  cudaMalloc(&dint, sizeof(int));
-  cudaMemcpy(dint, &hint, sizeof(int), cudaMemcpyHostToDevice);
+  titeGPUMalloc(&dint, sizeof(int));
+  titeGPUMemcpy(dint, &hint, sizeof(int), titeGPUMemcpyHostToDevice);
 
   vtable_entry_test_kernel<<<1,1>>>(dint);
-  cudaDeviceSynchronize();
+  titeGPUDeviceSynchronize();
 
-  cudaMemcpy(&hint, dint, sizeof(int), cudaMemcpyDeviceToHost);
-  cudaDeviceSynchronize();
+  titeGPUMemcpy(&hint, dint, sizeof(int), titeGPUMemcpyDeviceToHost);
+  titeGPUDeviceSynchronize();
 
   return hint;
 }

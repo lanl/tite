@@ -14,10 +14,9 @@
 
 namespace tite {
 
-template<typename MemorySpace,
-         typename... OverloadsT>
+template<typename... OverloadsT>
 class any_unique
-    : private detail::with_type_erased_tag_invoke<any_unique<MemorySpace, OverloadsT...>, OverloadsT>... {
+    : private detail::with_type_erased_tag_invoke<any_unique<OverloadsT...>, OverloadsT>... {
 private:
   using vtable_holder_t = detail::vtable_holder_t<detail::copy, detail::deallocate, OverloadsT...>;
 
@@ -31,8 +30,7 @@ public:
                       AllocatorT alloc,
                       in_place_type_t<ConcreteT>,
                       ArgsT&&... args)
-  : vtable_{vtable_holder_t::template construct<concrete_impl<ConcreteT, AllocatorT>,
-                                                              MemorySpace::template vtable_pointer_policy>()}
+  : vtable_{vtable_holder_t::template construct<concrete_impl<ConcreteT, AllocatorT>>(alloc)}
   {
     using concrete_type = concrete_impl<ConcreteT, AllocatorT>;
     using allocator_type = typename concrete_type::allocator_type;
@@ -54,7 +52,6 @@ public:
            TITE_REQUIRES(std::is_constructible<remove_cvref_t<ConcreteT>, ConcreteT&&>::value),
            TITE_REQUIRES(not std::is_same<std::allocator_arg_t, std::decay_t<ConcreteT>>::value ),
            TITE_REQUIRES(not is_specialization_of<in_place_type_t, std::decay_t<ConcreteT>>::value),
-           TITE_REQUIRES(is_specialization_of<MemorySpace::template allocator, AllocatorT>::value),
            TITE_REQUIRES(is_type_erasable_v<ConcreteT, OverloadsT...>)>
   any_unique(ConcreteT&& concrete, AllocatorT alloc)
   : any_unique(std::allocator_arg_t{},
@@ -69,7 +66,7 @@ public:
            TITE_REQUIRES(is_type_erasable_v<ConcreteT, OverloadsT...>)>
   explicit any_unique(in_place_type_t<ConcreteT> tag, ArgsT&&... args)
   : any_unique(std::allocator_arg,
-               typename MemorySpace::template allocator<unsigned char>{},
+               std::allocator<unsigned char>{},
                tag,
                std::forward<ArgsT>(args)...)
   {}

@@ -3,9 +3,9 @@
 
 #include "catch2/catch_test_macros.hpp"
 
-#ifdef TITE_ENABLE_CUDA
-int run_indirect_vtable_holder_cuda_test();
-int run_direct_vtable_holder_cuda_test();
+#ifdef TITE_ENABLE_GPU
+int run_indirect_vtable_holder_gpu_test();
+int run_direct_vtable_holder_gpu_test();
 #endif
 
 TEST_CASE("vtable_holder",
@@ -23,8 +23,8 @@ TEST_CASE("vtable_holder",
     void* vptr = &i;
     CHECK( ivth->template fn<times_two_ovld>()(times_two_ovld{}, vptr) == 10 );
 
-#   ifdef TITE_ENABLE_CUDA
-    CHECK( run_indirect_vtable_holder_cuda_test() == 10 );
+#   ifdef TITE_ENABLE_GPU
+    CHECK( run_indirect_vtable_holder_gpu_test() == 10 );
 #   endif
   }
 
@@ -37,8 +37,8 @@ TEST_CASE("vtable_holder",
     void* vptr = &i;
     CHECK( dvth->template fn<times_two_ovld>()(times_two_ovld{}, vptr) == 10 );
 
-#   ifdef TITE_ENABLE_CUDA
-    CHECK( run_direct_vtable_holder_cuda_test() == 10 );
+#   ifdef TITE_ENABLE_GPU
+    CHECK( run_direct_vtable_holder_gpu_test() == 10 );
 #   endif
   }
 }

@@ -3,8 +3,8 @@
 
 #include "catch2/catch_test_macros.hpp"
 
-#ifdef TITE_ENABLE_CUDA
-int run_vtable_cuda_test();
+#ifdef TITE_ENABLE_GPU
+int run_vtable_gpu_test();
 #endif
 
 TEST_CASE("vtable",
@@ -21,7 +21,7 @@ TEST_CASE("vtable",
   void* vptr = &i;
   CHECK( vt.template fn<times_two_ovld>()(times_two_ovld{}, vptr) == 10 );
 
-# ifdef TITE_ENABLE_CUDA
-  CHECK( run_vtable_cuda_test() == 10 );
+# ifdef TITE_ENABLE_GPU
+  CHECK( run_vtable_gpu_test() == 10 );
 # endif
 }

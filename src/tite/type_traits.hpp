@@ -1,7 +1,7 @@
 #ifndef TITE_TYPE_TRAITS_HPP
 #define TITE_TYPE_TRAITS_HPP
 
-#include "tite/type_traits/remove_cvref_t.hpp"
+#include "tite/type_traits/remove_cvref.hpp"
 
 #include "tite/type_traits/void_t.hpp"
 
