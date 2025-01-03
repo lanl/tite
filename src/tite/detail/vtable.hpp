@@ -64,7 +64,7 @@ struct default_vtable_pointer_policy {
 template<typename T, typename... OverloadsT>
 struct get_vtable_pointer_cpo {
 
-  friend constexpr auto tag_invoke(get_vtable_pointer_cpo, std::allocator<T>)
+  friend auto tag_invoke(get_vtable_pointer_cpo, std::allocator<T>)
   noexcept
   -> decltype( std::addressof(detail::vtable_for<T, OverloadsT...>) )
   {
@@ -87,7 +87,7 @@ constexpr static auto get_vtable_pointer = get_vtable_pointer_cpo<OverloadsT...>
 template<typename T, typename... OverloadsT>
 struct get_vtable_cpo {
 
-  friend constexpr auto tag_invoke(get_vtable_cpo, std::allocator<T>)
+  friend auto tag_invoke(get_vtable_cpo, std::allocator<T>)
   noexcept
   -> decltype( detail::vtable_for<T, OverloadsT...> )
   {
