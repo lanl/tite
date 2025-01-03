@@ -3,8 +3,6 @@
 
 #include "times_two.hpp"
 
-#include "cuda.h"
-
 #include <cstdio>
 
 __global__ void vtable_entry_test_kernel(int* const val)
@@ -19,14 +17,14 @@ int run_vtable_entry_gpu_test() {
 
   int hint = 5;
   int* dint;
-  titeGPUMalloc(&dint, sizeof(int));
-  titeGPUMemcpy(dint, &hint, sizeof(int), titeGPUMemcpyHostToDevice);
+  TITE_GPU_ASSERT(titeGPUMalloc(&dint, sizeof(int)));
+  TITE_GPU_ASSERT(titeGPUMemcpy(dint, &hint, sizeof(int), titeGPUMemcpyHostToDevice));
 
   vtable_entry_test_kernel<<<1,1>>>(dint);
-  titeGPUDeviceSynchronize();
+  TITE_GPU_ASSERT(titeGPUDeviceSynchronize());
 
-  titeGPUMemcpy(&hint, dint, sizeof(int), titeGPUMemcpyDeviceToHost);
-  titeGPUDeviceSynchronize();
+  TITE_GPU_ASSERT(titeGPUMemcpy(&hint, dint, sizeof(int), titeGPUMemcpyDeviceToHost));
+  TITE_GPU_ASSERT(titeGPUDeviceSynchronize());
 
   return hint;
 }

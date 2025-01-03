@@ -47,7 +47,7 @@ struct gpu_allocator {
 					 typename... ArgTs>
   constexpr void construct(U* const ptr, ArgTs&&... args) const {
 		detail::construct<<<1,1>>>(ptr, std::forward<ArgTs>(args)...);
-		titeGPUDeviceSynchronize();
+		TITE_GPU_ASSERT( titeGPUDeviceSynchronize() );
 	}
 
 	template<typename U>

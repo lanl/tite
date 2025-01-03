@@ -30,4 +30,4 @@ endif()
 
 target_sources(tite_test_main PRIVATE
   $<TARGET_OBJECTS:vtable.test.CXX>
-  $<$<BOOL:${TITE_ENABLE_CUDA}>:$<TARGET_OBJECTS:vtable.test.GPU>>)
+  $<$<BOOL:${TITE_ENABLE_GPU}>:$<TARGET_OBJECTS:vtable.test.GPU>>)

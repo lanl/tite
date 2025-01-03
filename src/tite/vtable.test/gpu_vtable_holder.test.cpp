@@ -22,8 +22,8 @@ __global__ void vtable_holder_test_kernel(VTableHolderT vth, int* const val)
 int run_indirect_vtable_holder_gpu_test() {
   int hint = 5;
   int* dint;
-  titeGPUMalloc(&dint, sizeof(int));
-  titeGPUMemcpy(dint, &hint, sizeof(int), titeGPUMemcpyHostToDevice);
+  TITE_GPU_ASSERT( titeGPUMalloc(&dint, sizeof(int)) );
+  TITE_GPU_ASSERT( titeGPUMemcpy(dint, &hint, sizeof(int), titeGPUMemcpyHostToDevice) );
 
   using gpu_vtable_holder_test::times_two_ovld;
   using tite::detail::indirect_vtable_holder;
@@ -31,10 +31,10 @@ int run_indirect_vtable_holder_gpu_test() {
   auto ivth = indirect_vtable_holder<times_two_ovld>::template construct<int>(gpu_allocator<int>{});
 
   vtable_holder_test_kernel<<<1,1>>>(ivth, dint);
-  titeGPUDeviceSynchronize();
+  TITE_GPU_ASSERT( titeGPUDeviceSynchronize() );
 
-  titeGPUMemcpy(&hint, dint, sizeof(int), titeGPUMemcpyDeviceToHost);
-  titeGPUDeviceSynchronize();
+  TITE_GPU_ASSERT( titeGPUMemcpy(&hint, dint, sizeof(int), titeGPUMemcpyDeviceToHost) );
+  TITE_GPU_ASSERT( titeGPUDeviceSynchronize() );
 
   return hint;
 }
@@ -42,8 +42,8 @@ int run_indirect_vtable_holder_gpu_test() {
 int run_direct_vtable_holder_gpu_test() {
   int hint = 5;
   int* dint;
-  titeGPUMalloc(&dint, sizeof(int));
-  titeGPUMemcpy(dint, &hint, sizeof(int), titeGPUMemcpyHostToDevice);
+  TITE_GPU_ASSERT( titeGPUMalloc(&dint, sizeof(int)) );
+  TITE_GPU_ASSERT( titeGPUMemcpy(dint, &hint, sizeof(int), titeGPUMemcpyHostToDevice) );
 
   using gpu_vtable_holder_test::times_two_ovld;
   using tite::detail::direct_vtable_holder;
@@ -51,10 +51,10 @@ int run_direct_vtable_holder_gpu_test() {
   auto dvth = direct_vtable_holder<times_two_ovld>::template construct<int>(gpu_allocator<int>{});
 
   vtable_holder_test_kernel<<<1,1>>>(dvth, dint);
-  titeGPUDeviceSynchronize();
+  TITE_GPU_ASSERT( titeGPUDeviceSynchronize() );
 
-  titeGPUMemcpy(&hint, dint, sizeof(int), titeGPUMemcpyDeviceToHost);
-  titeGPUDeviceSynchronize();
+  TITE_GPU_ASSERT( titeGPUMemcpy(&hint, dint, sizeof(int), titeGPUMemcpyDeviceToHost) );
+  TITE_GPU_ASSERT( titeGPUDeviceSynchronize() );
 
   return hint;
 }

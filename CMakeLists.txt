@@ -15,6 +15,7 @@ include(CMakeDependentOption)
 include(cmake/tite_direct_vtable_max_size.cmake)
 
 option(TITE_ENABLE_CUDA OFF "enable CUDA components")
+option(TITE_ENABLE_HIP OFF "enable HIP components")
 
 CMAKE_DEPENDENT_OPTION(TITE_TESTING
   "Build tite tests" ${tite_testing_default}
@@ -34,14 +35,14 @@ if( TITE_ENABLE_HIP )
   set(TITE_GPU_LANGUAGE "HIP")
 endif()
 
-if( TITE_ENABLE_CUDA OR TITE_ENABLE_HIP )
+if( ${TITE_ENABLE_CUDA} OR ${TITE_ENABLE_HIP} )
   set(TITE_ENABLE_GPU TRUE)
 endif()
 
 add_library(tite INTERFACE)
 add_library(tite::tite ALIAS tite)
 target_compile_definitions(tite INTERFACE
-  $<$<BOOL:${TITE_ENABLE_CUDA}>:TITE_ENABLE_GPU> )
+  $<$<BOOL:${TITE_ENABLE_GPU}>:TITE_ENABLE_GPU> )
 target_compile_options(tite INTERFACE
   $<$<CUDA_COMPILER_ID:NVIDIA>:$<$<COMPILE_LANGUAGE:CUDA>:-expt-relaxed-constexpr>>)
 
@@ -65,12 +66,12 @@ if( TITE_TESTING )
     Catch2::Catch2
     tite::tite)
 
-   target_compile_options(tite_testing INTERFACE
-    $<$<CXX_COMPILER_ID:GNU>:-Wall;-Werror;-Wno-sign-compare>
-    $<$<NOT:$<BOOL:${WIN32}>>:$<$<CXX_COMPILER_ID:Clang>:-Wall;-Werror>>
-    $<$<BOOL:${WIN32}>:$<$<CXX_COMPILER_ID:Clang>:-Wall;-Wno-c++98-compat;-Wno-c++98-compat-pedantic>>
-    $<$<CXX_COMPILER_ID:AppleClang>:-Wall;-Werror >
-   )
+  target_compile_options(tite_testing INTERFACE
+   $<$<CXX_COMPILER_ID:GNU>:-Wall;-Werror;-Wno-sign-compare>
+   $<$<NOT:$<BOOL:${WIN32}>>:$<$<CXX_COMPILER_ID:Clang>:-Wall;-Werror>>
+   $<$<BOOL:${WIN32}>:$<$<CXX_COMPILER_ID:Clang>:-Wall;-Wno-c++98-compat;-Wno-c++98-compat-pedantic>>
+   $<$<CXX_COMPILER_ID:AppleClang>:-Wall;-Werror >
+  )
 
   add_executable(tite_test_main
     testing/catch_main.cpp )
