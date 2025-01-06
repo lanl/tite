@@ -25,7 +25,7 @@ if( TITE_ENABLE_GPU )
     LINKER_LANGUAGE ${TITE_GPU_LANGUAGE})
 
   target_link_libraries(vtable.test.GPU PRIVATE
-    tite::tite)
+    tite::tite tite::tite_testing)
 endif()
 
 target_sources(tite_test_main PRIVATE

@@ -9,6 +9,7 @@
 namespace tite {
 
 namespace tag_invoke_detail {
+  constexpr
   void tag_invoke();
 
   struct tag_invoke_fn {

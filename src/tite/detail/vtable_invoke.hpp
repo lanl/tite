@@ -2,6 +2,8 @@
 #define TITE_DETAIL_VTABLE_INVOKE_HPP
 
 #include "tite/self.hpp"
+#include "tite/type_traits/allocator_tag.hpp"
+#include "tite/detail/void_ptr_cast.hpp"
 
 namespace tite {
 
@@ -18,7 +20,7 @@ noexcept( noexcept( std::move(cpo)(replace_self<ArgsT>::get(std::forward<replace
 -> ReturnT
 {
   void* self_ptr = extract_self<ArgsT...>{}(args...);
-  T& obj = *static_cast<T*>(self_ptr);
+  T& obj = void_ptr_cast<T>(self_ptr, get_allocator_tag_v<T>);
   return std::move(cpo)(replace_self<ArgsT>::get(std::forward<replace_self_with_void_ptr_t<ArgsT>>(args), obj)...);
 }
 
@@ -32,7 +34,7 @@ constexpr void vtable_invoke(CPOT cpo,
 noexcept( noexcept( std::move(cpo)(replace_self<ArgsT>::get(std::forward<replace_self_with_void_ptr_t<ArgsT>>(args), std::declval<T&>())...) ) )
 {
   void* self_ptr = extract_self<ArgsT...>{}(args...);
-  T& obj = *static_cast<T*>(self_ptr);
+  T& obj = void_ptr_cast<T>(self_ptr, get_allocator_tag_v<T>);
   std::move(cpo)(replace_self<ArgsT>::get(std::forward<replace_self_with_void_ptr_t<ArgsT>>(args), obj)...);
 }
 } // namespace detail

@@ -7,7 +7,7 @@
 #include <memory>
 
 #ifndef TITE_DIRECT_VTABLE_SIZE_MAX
-#define TITE_DIRECT_VTABLE_SIZE_MAX 1
+#define TITE_DIRECT_VTABLE_SIZE_MAX 5
 #endif
 
 namespace tite {
@@ -87,8 +87,8 @@ private:
   constexpr static bool check = sizeof...(OverloadsT) > TITE_DIRECT_VTABLE_SIZE_MAX;
 public:
   using type = std::conditional_t<check,
-                                  direct_vtable_holder<OverloadsT...>,
-                                  indirect_vtable_holder<OverloadsT...>>;
+                                  indirect_vtable_holder<OverloadsT...>,
+                                  direct_vtable_holder<OverloadsT...>>;
 };
 
 template<typename... OverloadsT>

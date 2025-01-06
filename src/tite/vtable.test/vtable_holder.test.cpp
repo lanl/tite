@@ -24,7 +24,7 @@ TEST_CASE("vtable_holder",
     CHECK( ivth->template fn<times_two_ovld>()(times_two_ovld{}, vptr) == 10 );
 
 #   ifdef TITE_ENABLE_GPU
-    CHECK( run_indirect_vtable_holder_gpu_test() == 10 );
+    CHECK( run_indirect_vtable_holder_gpu_test() == 30 );
 #   endif
   }
 
@@ -38,7 +38,7 @@ TEST_CASE("vtable_holder",
     CHECK( dvth->template fn<times_two_ovld>()(times_two_ovld{}, vptr) == 10 );
 
 #   ifdef TITE_ENABLE_GPU
-    CHECK( run_direct_vtable_holder_gpu_test() == 10 );
+    CHECK( run_direct_vtable_holder_gpu_test() == 30 );
 #   endif
   }
 }

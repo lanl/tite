@@ -46,7 +46,7 @@ target_compile_definitions(tite INTERFACE
 target_compile_options(tite INTERFACE
   $<$<CUDA_COMPILER_ID:NVIDIA>:$<$<COMPILE_LANGUAGE:CUDA>:-expt-relaxed-constexpr>>)
 
-target_compile_features(tite INTERFACE cxx_std_14)
+target_compile_features(tite INTERFACE cxx_std_17)
 target_compile_definitions(tite INTERFACE
   $<$<BOOL:$<TARGET_PROPERTY:TITE_DIRECT_VTABLE_SIZE_MAX>>:TITE_DIRECT_VTABLE_SIZE_MAX=$<TARGET_PROPERTY:TITE_DIRECT_VTABLE_SIZE_MAX>>)
 
@@ -64,17 +64,20 @@ if( TITE_TESTING )
 
   target_link_libraries(tite_testing INTERFACE
     Catch2::Catch2
-    tite::tite)
+    tite::tite
+    $<$<BOOL:${TITE_ENABLE_CUDA}>:${CUDA_LIBRARIES}>)
 
   target_compile_options(tite_testing INTERFACE
    $<$<CXX_COMPILER_ID:GNU>:-Wall;-Werror;-Wno-sign-compare>
    $<$<NOT:$<BOOL:${WIN32}>>:$<$<CXX_COMPILER_ID:Clang>:-Wall;-Werror>>
    $<$<BOOL:${WIN32}>:$<$<CXX_COMPILER_ID:Clang>:-Wall;-Wno-c++98-compat;-Wno-c++98-compat-pedantic>>
    $<$<CXX_COMPILER_ID:AppleClang>:-Wall;-Werror >
+   $<$<AND:$<CXX_COMPILER_ID:Clang>,$<COMPILE_LANGUAGE:CUDA>>:-Xarch_device -g0>
   )
 
   add_executable(tite_test_main
     testing/catch_main.cpp )
+  target_compile_options(tite_test_main PRIVATE -fPIC)
   target_link_libraries(tite_test_main PRIVATE
     Catch2::Catch2 )
 

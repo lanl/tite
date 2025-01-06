@@ -3,7 +3,7 @@ target_sources(tite INTERFACE
   ${prefix}/tite.hpp
 
   ${prefix}/tite/any_unique.hpp
-  $<$<BOOL:${TITE_ENABLE_GPU}>:${prefix}/tite/gpu_allocator.hpp>
+  $<$<BOOL:${TITE_ENABLE_GPU}>:${prefix}/tite/host_held_gpu_allocator.hpp>
   ${prefix}/tite/overload.hpp
   ${prefix}/tite/self.hpp
   ${prefix}/tite/type_traits.hpp
@@ -43,6 +43,7 @@ if( TITE_TESTING )
   add_subdirectory(tite/self.test)
   add_subdirectory(tite/type_traits.test)
   add_subdirectory(tite/overload.test)
+  add_subdirectory(tite/host_held_gpu_allocator.test)
   add_subdirectory(tite/vtable.test)
   add_subdirectory(tite/any_unique.test)
 endif()

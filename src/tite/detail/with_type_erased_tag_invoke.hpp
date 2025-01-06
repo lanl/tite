@@ -20,6 +20,7 @@ template<typename DerivedT,
 struct with_type_erased_tag_invoke<DerivedT, OverloadT, ReturnT(ArgsT...)> {
   template<typename ObjectT = decltype(extract_self<ArgsT...>{}(std::declval<replace_self_t<ArgsT,DerivedT>>()...)),
            typename FnPtrT = decltype(std::declval<ObjectT&>().get_vtable()->template fn<OverloadT>())>
+  constexpr
   friend ReturnT tag_invoke(base_cpo_t<OverloadT> cpo,
                             replace_self_t<ArgsT,DerivedT>... args)
   noexcept( noexcept( std::declval<FnPtrT>()(std::move(cpo), replace_self<ArgsT>::get((ArgsT&&) args, std::declval<void*&>())...) ) )
