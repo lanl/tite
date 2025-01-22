@@ -17,7 +17,7 @@ TEST_CASE("vtable_holder",
   SECTION("indirect_vtable_holder") {
     using tite::detail::indirect_vtable_holder;
 
-    auto ivth = indirect_vtable_holder<times_two_ovld>::template construct<int>();
+    auto ivth = indirect_vtable_holder<times_two_ovld>::template construct<int>(tite::allocator_tag_v<std::allocator<int>>);
 
     int i = 5;
     void* vptr = &i;
@@ -31,7 +31,7 @@ TEST_CASE("vtable_holder",
   SECTION("direct_vtable_holder") {
     using tite::detail::direct_vtable_holder;
 
-    auto dvth = direct_vtable_holder<times_two_ovld>::template construct<int>();
+    auto dvth = direct_vtable_holder<times_two_ovld>::template construct<int>(tite::allocator_tag_v<std::allocator<int>>);
 
     int i = 5;
     void* vptr = &i;

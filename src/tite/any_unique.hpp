@@ -31,8 +31,10 @@ public:
                       AllocatorT alloc,
                       in_place_type_t<ConcreteT>,
                       ArgsT&&... args)
-  : vtable_{vtable_holder_t::template construct<concrete_impl<ConcreteT, AllocatorT>>(alloc)}
-  , special_vtable_{special_vtable_holder_t::template construct<concrete_impl<ConcreteT, AllocatorT>>(std::allocator<ConcreteT>{})}
+  : vtable_{vtable_holder_t::template construct<concrete_impl<ConcreteT, AllocatorT>>(
+              allocator_tag_v<typename concrete_impl<ConcreteT, AllocatorT>::allocator_type>)}
+  , special_vtable_{special_vtable_holder_t::template construct<concrete_impl<ConcreteT, AllocatorT>>(
+              allocator_tag_v<std::allocator<concrete_impl<ConcreteT, AllocatorT>>>)}
   {
     using concrete_type = concrete_impl<ConcreteT, AllocatorT>;
     using allocator_type = typename concrete_type::allocator_type;

@@ -4,9 +4,8 @@
 #include "tite/type_traits/requires.hpp"
 #include "tite/type_traits/remove_cvref.hpp"
 #include "tite/type_traits/allocator_tag.hpp"
-#include "tite/detail/vtable.hpp"
-#include "tite/detail/gpu_vtable.hpp"
 #include "tite/detail/gpu_functions.hpp"
+#include "tite/gpu_allocator_base.hpp"
 #include "tite/type_traits/tag_invoke.hpp"
 
 #include "tite/detail/void_ptr_cast.hpp"
@@ -19,7 +18,7 @@
 namespace tite {
 
 template<typename T>
-struct host_held_gpu_allocator {
+struct host_held_gpu_allocator : gpu_allocator_base<host_held_gpu_allocator<T>>{
   using host_allocator_type = std::allocator<T>;
   host_allocator_type host_allocator_;
 
@@ -97,28 +96,6 @@ struct host_held_gpu_allocator {
 
     TITE_GPU_ASSERT( titeGPUFree(ptr) );
   }
-
-	template<typename U,
-					 typename... OverloadsT>
-	friend constexpr auto tag_invoke(get_vtable_pointer_cpo<U,OverloadsT...>, host_held_gpu_allocator<T> const&)
-	noexcept
-	-> tite::detail::vtable<OverloadsT...>*
-	{
-		tite::detail::vtable<OverloadsT...>* ptr = nullptr;
-		TITE_GPU_ASSERT( titeGPUMemcpyFromSymbol(&ptr, detail::gpu_vtable_ptr<U,OverloadsT...>, sizeof(detail::gpu_vtable_ptr<U,OverloadsT...>)) );
-		return ptr;
-	}
-
-	template<typename U,
-					 typename... OverloadsT>
-	friend constexpr auto tag_invoke(get_vtable_cpo<U,OverloadsT...>, host_held_gpu_allocator<T> const&)
-	noexcept
-	-> tite::detail::vtable<OverloadsT...>
-	{
-		tite::detail::vtable<OverloadsT...> vtable = detail::vtable_for<U,OverloadsT...>;
-		TITE_GPU_ASSERT( titeGPUMemcpyFromSymbol(&vtable, detail::gpu_vtable_for<U,OverloadsT...>, sizeof(detail::gpu_vtable_for<U,OverloadsT...>)) );
-		return vtable;
-	}
 
   constexpr
   friend auto tag_invoke(void_ptr_cast_cpo<T>, void* ptr, allocator_tag_t<host_held_gpu_allocator>)

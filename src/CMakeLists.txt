@@ -12,7 +12,7 @@ target_sources(tite INTERFACE
 
   # detail
   ${prefix}/tite/detail/copy.hpp
-  ${prefix}/tite/detail/deallocate.hpp
+  ${prefix}/tite/detail/deallocate_cpo.hpp
   $<$<BOOL:${TITE_ENABLE_GPU}>:${prefix}/tite/detail/gpu_functions.hpp>
   $<$<BOOL:${TITE_ENABLE_GPU}>:${prefix}/tite/detail/gpu_vtable.hpp>
   ${prefix}/tite/detail/vtable.hpp

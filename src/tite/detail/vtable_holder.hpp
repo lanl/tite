@@ -3,6 +3,7 @@
 
 #include "tite/detail/vtable.hpp"
 #include "tite/type_traits/requires.hpp"
+#include "tite/type_traits/is_specialization_of.hpp"
 
 #include <memory>
 
@@ -18,11 +19,12 @@ template<typename... OverloadsT>
 struct indirect_vtable_holder {
 public:
   template<typename T,
-           typename AllocatorT=std::allocator<T>>
-  constexpr static indirect_vtable_holder construct(AllocatorT&& allocator={})
+           typename AllocatorTag,
+           TITE_REQUIRES(is_specialization_of_v<allocator_tag_t, AllocatorTag>)>
+  constexpr static indirect_vtable_holder construct(AllocatorTag tag)
   noexcept
   {
-    return indirect_vtable_holder{get_vtable_pointer<T, OverloadsT...>(std::forward<AllocatorT>(allocator))};
+    return indirect_vtable_holder{get_vtable_pointer<T, OverloadsT...>(tag)};
   }
 
   constexpr vtable<OverloadsT...> const& operator*() const
@@ -51,11 +53,12 @@ template<typename... OverloadsT>
 struct direct_vtable_holder {
 public:
   template<typename T,
-           typename AllocatorT=std::allocator<T>>
-  constexpr static direct_vtable_holder construct(AllocatorT&& allocator={})
+           typename AllocatorTag,
+           TITE_REQUIRES(is_specialization_of_v<allocator_tag_t, AllocatorTag>)>
+  constexpr static direct_vtable_holder construct(AllocatorTag tag)
   noexcept
   {
-    return direct_vtable_holder{get_vtable<T, OverloadsT...>(std::forward<AllocatorT>(allocator))};
+    return direct_vtable_holder{get_vtable<T, OverloadsT...>(tag)};
   }
 
   constexpr vtable<OverloadsT...> const& operator*() const

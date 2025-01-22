@@ -20,7 +20,7 @@ noexcept( noexcept( std::move(cpo)(replace_self<ArgsT>::get(std::forward<replace
 -> ReturnT
 {
   void* self_ptr = extract_self<ArgsT...>{}(args...);
-  T& obj = void_ptr_cast<T>(self_ptr, get_allocator_tag_v<T>);
+  T& obj = void_ptr_cast<T>(self_ptr, internal_allocator_type_tag_v<T>);
   return std::move(cpo)(replace_self<ArgsT>::get(std::forward<replace_self_with_void_ptr_t<ArgsT>>(args), obj)...);
 }
 
@@ -34,7 +34,7 @@ constexpr void vtable_invoke(CPOT cpo,
 noexcept( noexcept( std::move(cpo)(replace_self<ArgsT>::get(std::forward<replace_self_with_void_ptr_t<ArgsT>>(args), std::declval<T&>())...) ) )
 {
   void* self_ptr = extract_self<ArgsT...>{}(args...);
-  T& obj = void_ptr_cast<T>(self_ptr, get_allocator_tag_v<T>);
+  T& obj = void_ptr_cast<T>(self_ptr, internal_allocator_type_tag_v<T>);
   std::move(cpo)(replace_self<ArgsT>::get(std::forward<replace_self_with_void_ptr_t<ArgsT>>(args), obj)...);
 }
 } // namespace detail
