@@ -161,7 +161,6 @@ public:
     , ptr{ptr}
     {}
 
-    constexpr
     friend void tag_invoke(detail::deallocate_cpo,
                            concrete_impl&& impl)
     noexcept

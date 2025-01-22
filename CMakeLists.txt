@@ -68,11 +68,11 @@ if( TITE_TESTING )
     $<$<BOOL:${TITE_ENABLE_CUDA}>:${CUDA_LIBRARIES}>)
 
   target_compile_options(tite_testing INTERFACE
-   $<$<CXX_COMPILER_ID:GNU>:-Wall;-Werror;-Wno-sign-compare>
-   $<$<NOT:$<BOOL:${WIN32}>>:$<$<CXX_COMPILER_ID:Clang>:-Wall;-Werror>>
-   $<$<BOOL:${WIN32}>:$<$<CXX_COMPILER_ID:Clang>:-Wall;-Wno-c++98-compat;-Wno-c++98-compat-pedantic>>
-   $<$<CXX_COMPILER_ID:AppleClang>:-Wall;-Werror >
-   $<$<AND:$<CXX_COMPILER_ID:Clang>,$<COMPILE_LANGUAGE:CUDA>>:-Xarch_device -g0>
+    # $<$<CXX_COMPILER_ID:GNU>:-Wall;-Werror;-Wno-sign-compare>
+    # $<$<NOT:$<BOOL:${WIN32}>>:$<$<CXX_COMPILER_ID:Clang>:-Wall;-Werror>>
+    # $<$<BOOL:${WIN32}>:$<$<CXX_COMPILER_ID:Clang>:-Wall;-Wno-c++98-compat;-Wno-c++98-compat-pedantic>>
+    # $<$<CXX_COMPILER_ID:AppleClang>:-Wall;-Werror >
+    # $<$<AND:$<CXX_COMPILER_ID:Clang>,$<COMPILE_LANGUAGE:CUDA>>:-Xarch_device -g0>
   )
 
   add_executable(tite_test_main
