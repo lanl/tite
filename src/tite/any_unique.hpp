@@ -3,7 +3,7 @@
 
 #include "tite/detail/with_forwarding_tag_invoke.hpp"
 #include "tite/detail/with_type_erased_tag_invoke.hpp"
-#include "tite/detail/deallocate.hpp"
+#include "tite/detail/deallocate_cpo.hpp"
 #include "tite/detail/copy.hpp"
 #include "tite/vtable.hpp"
 #include "tite/type_traits.hpp"
@@ -18,8 +18,8 @@ template<typename... OverloadsT>
 class any_unique
     : private detail::with_type_erased_tag_invoke<any_unique<OverloadsT...>, OverloadsT>... {
 private:
-  using vtable_holder_t = detail::vtable_holder_t<detail::deallocate, OverloadsT...>;
-  using special_vtable_holder_t = detail::vtable_holder_t<detail::deallocate>;
+  using vtable_holder_t = detail::vtable_holder_t<OverloadsT...>;
+  using special_vtable_holder_t = detail::vtable_holder_t<detail::deallocate_cpo>;
 
 public:
   template<typename ConcreteT,
@@ -121,8 +121,8 @@ public:
     if( this == std::addressof(other) ) return *this;
 
     if (impl_ != nullptr) {
-      auto deallocateFn = vtable_->template fn<detail::deallocate>();
-      deallocateFn(detail::deallocate{}, impl_);
+      auto deallocateFn = vtable_->template fn<detail::deallocate_cpo>();
+      deallocateFn(detail::deallocate_cpo{}, impl_);
     }
 
     impl_ = std::exchange(other.impl_, nullptr);
@@ -133,8 +133,8 @@ public:
 
   ~any_unique() {
     if (impl_ != nullptr) {
-      auto deallocateFn = special_vtable_->template fn<detail::deallocate>();
-      deallocateFn(detail::deallocate{}, impl_);
+      auto deallocateFn = special_vtable_->template fn<detail::deallocate_cpo>();
+      deallocateFn(detail::deallocate_cpo{}, impl_);
     }
   }
 
@@ -160,7 +160,7 @@ public:
     {}
 
     constexpr
-    friend void tag_invoke(detail::deallocate,
+    friend void tag_invoke(detail::deallocate_cpo,
                            concrete_impl&& impl)
     noexcept
     {

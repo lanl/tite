@@ -7,6 +7,8 @@
 
 #include "tite/self.hpp"
 
+#include "tite/cpo_base.hpp"
+
 #include "tite/overload.hpp"
 
 #include "tite/vtable.hpp"

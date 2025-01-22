@@ -1,5 +1,5 @@
-#ifndef TITE_DETAIL_DEALLOCATE_HPP
-#define TITE_DETAIL_DEALLOCATE_HPP
+#ifndef TITE_DETAIL_DEALLOCATE_CPO_HPP
+#define TITE_DETAIL_DEALLOCATE_CPO_HPP
 
 #include "tite/detail/gpu_functions.hpp"
 #include "tite/self.hpp"
@@ -10,17 +10,16 @@ namespace tite {
 
 namespace detail {
 
-
-struct deallocate {
+struct deallocate_cpo {
   using signature_t = void(self&&);
 
   template<typename T,
-           TITE_REQUIRES(is_tag_invocable<deallocate, T&&>::value)>
+           TITE_REQUIRES(is_tag_invocable<deallocate_cpo, T&&>::value)>
   constexpr void operator()(T&& obj) const
   noexcept
   {
 #if ! TITE_DEVICE_COMPILE()
-    tag_invoke_fn{}(deallocate{}, std::forward<T>(obj));
+    tag_invoke_fn{}(deallocate_cpo{}, std::forward<T>(obj));
 #endif
   }
 };

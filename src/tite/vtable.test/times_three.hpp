@@ -3,7 +3,7 @@
 
 #include "tite.hpp"
 
-struct times_three {
+struct times_three : tite::cpo_base<times_three> {
 private:
   template<typename ArgT>
   friend constexpr auto tag_invoke(times_three, ArgT&& arg)
@@ -11,15 +11,6 @@ private:
   -> decltype( 3*std::forward<ArgT>(arg) )
   {
     return 3 * std::forward<ArgT>(arg);
-  }
-
-public:
-  template<typename ArgT>
-  constexpr auto operator()(ArgT&& arg) const
-  noexcept( noexcept( tite::tag_invoke_fn{}(std::declval<times_three const&>(), std::forward<ArgT>(arg)) ) )
-  -> decltype( tite::tag_invoke_fn{}(std::declval<times_three const&>(), std::forward<ArgT>(arg)) )
-  {
-    return tite::tag_invoke_fn{}(*this, std::forward<ArgT>(arg));
   }
 };
 

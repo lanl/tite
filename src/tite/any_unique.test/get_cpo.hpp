@@ -5,7 +5,8 @@
 
 #include <utility>
 
-struct get_cpo {
+struct get_cpo : tite::cpo_base<get_cpo> {
+private:
   template<typename T,
            typename IntT>
   friend constexpr auto tag_invoke(get_cpo, T&& t, IntT index)
@@ -13,14 +14,6 @@ struct get_cpo {
   -> decltype( std::forward<T>(t)[index] )
   {
     return std::forward<T>(t)[index];
-  }
-
-  template<typename T, typename IntT>
-  constexpr auto operator()(T&& t, IntT index) const
-  noexcept( noexcept( tite::tag_invoke_fn{}(std::declval<get_cpo>(), std::forward<T>(t), index) ) )
-  -> decltype( tite::tag_invoke_fn{}(std::declval<get_cpo>(), std::forward<T>(t), index) )
-  {
-    return tite::tag_invoke_fn{}(*this, std::forward<T>(t), index);
   }
 };
 
