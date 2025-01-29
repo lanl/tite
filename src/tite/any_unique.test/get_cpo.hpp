@@ -2,6 +2,7 @@
 #define TITE_ANY_UNIQUE_TEST_GET_CPO_HPP
 
 #include "tite.hpp"
+#include "tite/detail/gpu_functions.hpp"
 
 #include <utility>
 
@@ -17,6 +18,6 @@ private:
   }
 };
 
-constexpr static auto get = get_cpo{};
+TITE_CONSTEXPR_STATIC auto get = get_cpo{};
 
 #endif

@@ -32,8 +32,6 @@ public:
     return vtable_entry_base.fn();
   }
 
-  constexpr
-  vtable() = default;
 private:
   explicit constexpr
   vtable(vtable_entry<OverloadsT>... entries)
@@ -65,7 +63,7 @@ struct default_vtable_pointer_policy {
 
 template<typename T, typename... OverloadsT>
 struct get_vtable_pointer_cpo : cpo_base<get_vtable_pointer_cpo<T,OverloadsT...>> {
-private:
+// private:
   friend auto tag_invoke(get_vtable_pointer_cpo, allocator_tag_t<std::allocator<T>>)
   noexcept
   -> decltype( std::addressof(detail::vtable_for<T, OverloadsT...>) )
@@ -79,7 +77,7 @@ constexpr static auto get_vtable_pointer = get_vtable_pointer_cpo<OverloadsT...>
 
 template<typename T, typename... OverloadsT>
 struct get_vtable_cpo : cpo_base<get_vtable_cpo<T,OverloadsT...>> {
-private:
+// private:
   friend auto tag_invoke(get_vtable_cpo, allocator_tag_t<std::allocator<T>>)
   noexcept
   -> decltype( detail::vtable_for<T, OverloadsT...> )

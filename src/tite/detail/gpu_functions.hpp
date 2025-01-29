@@ -41,4 +41,10 @@
 #define TITE_DEVICE_COMPILE() \
   (defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__))
 
+#if TITE_DEVICE_COMPILE() && defined(__NVCC__)
+#define TITE_CONSTEXPR_STATIC constexpr static __device__
+#else
+#define TITE_CONSTEXPR_STATIC constexpr static
+#endif
+
 #endif
