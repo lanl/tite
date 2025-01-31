@@ -1,5 +1,5 @@
 #include "tite.hpp"
-#include "tite/host_held_gpu_allocator.hpp"
+#include "tite/gpu_allocator.hpp"
 
 #include "times_two.hpp"
 #include "times_three.hpp"
@@ -32,8 +32,8 @@ int run_indirect_vtable_holder_gpu_test() {
   using gpu_vtable_holder_test::times_two_ovld;
   using gpu_vtable_holder_test::times_three_ovld;
   using tite::detail::indirect_vtable_holder;
-  using tite::host_held_gpu_allocator;
-  auto ivth = indirect_vtable_holder<times_two_ovld,times_three_ovld>::template construct<int>(tite::allocator_tag_v<host_held_gpu_allocator<int>>);
+  using tite::gpu_allocator;
+  auto ivth = indirect_vtable_holder<times_two_ovld,times_three_ovld>::template construct<int>(tite::allocator_tag_v<gpu_allocator<int>>);
 
   vtable_holder_test_kernel<<<1,1>>>(ivth, dint);
   TITE_GPU_ASSERT( titeGPUDeviceSynchronize() );
@@ -53,8 +53,8 @@ int run_direct_vtable_holder_gpu_test() {
   using gpu_vtable_holder_test::times_two_ovld;
   using gpu_vtable_holder_test::times_three_ovld;
   using tite::detail::direct_vtable_holder;
-  using tite::host_held_gpu_allocator;
-  auto dvth = direct_vtable_holder<times_two_ovld,times_three_ovld>::template construct<int>(tite::allocator_tag_v<host_held_gpu_allocator<int>>);
+  using tite::gpu_allocator;
+  auto dvth = direct_vtable_holder<times_two_ovld,times_three_ovld>::template construct<int>(tite::allocator_tag_v<gpu_allocator<int>>);
 
   vtable_holder_test_kernel<<<1,1>>>(dvth, dint);
   TITE_GPU_ASSERT( titeGPUDeviceSynchronize() );

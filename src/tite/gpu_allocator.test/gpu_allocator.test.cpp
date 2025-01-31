@@ -1,5 +1,5 @@
 #include "tite.hpp"
-#include "tite/host_held_gpu_allocator.hpp"
+#include "tite/gpu_allocator.hpp"
 
 #include <cstdio>
 
@@ -10,12 +10,12 @@ __global__ void get_value(PointerT const * const ptr, int* const d_ptr) {
   *d_ptr = *(ptr->gpu_ptr);
 }
 
-TEST_CASE("host_held_gpu_allocator",
-          "[host_held_gpu_allocator]") {
+TEST_CASE("gpu_allocator",
+          "[gpu_allocator]") {
 
-  using tite::host_held_gpu_allocator;
+  using tite::gpu_allocator;
 
-  auto alloc = host_held_gpu_allocator<int>{ /*std::allocator<int>{}*/ };
+  auto alloc = gpu_allocator<int>{ /*std::allocator<int>{}*/ };
 
   auto ptr = alloc.allocate(1);
   alloc.construct(ptr, 5);

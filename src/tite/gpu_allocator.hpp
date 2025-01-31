@@ -19,9 +19,9 @@ namespace tite {
 
 template<typename T>
 #if ! defined(__NVCC__)
-struct host_held_gpu_allocator : gpu_allocator_base<host_held_gpu_allocator<T>>{
+struct gpu_allocator : gpu_allocator_base<gpu_allocator<T>>{
 #else
-struct host_held_gpu_allocator {
+struct gpu_allocator {
 #endif
   using host_allocator_type = std::allocator<T>;
   host_allocator_type host_allocator_;
@@ -37,18 +37,18 @@ struct host_held_gpu_allocator {
 
   /*
   template<typename host_allocator_type_,
-           TITE_REQUIRES( not std::is_same<host_held_gpu_allocator, remove_cvref_t<host_allocator_type_>>::value ) >
-  constexpr host_held_gpu_allocator(host_allocator_type_&& host_allocator) noexcept
+           TITE_REQUIRES( not std::is_same<gpu_allocator, remove_cvref_t<host_allocator_type_>>::value ) >
+  constexpr gpu_allocator(host_allocator_type_&& host_allocator) noexcept
   : host_allocator_{std::forward<host_allocator_type_>(host_allocator)}
   {}
   */
 
   constexpr
-  host_held_gpu_allocator() {}
+  gpu_allocator() {}
 
   template<typename U>
-  constexpr host_held_gpu_allocator(host_held_gpu_allocator<U> const& other)
-  : host_held_gpu_allocator{}
+  constexpr gpu_allocator(gpu_allocator<U> const& other)
+  : gpu_allocator{}
   {}
 
   template<typename IntT,
@@ -102,7 +102,7 @@ struct host_held_gpu_allocator {
   }
 
   constexpr
-  friend auto tag_invoke(void_ptr_cast_cpo<T>, void* ptr, allocator_tag_t<host_held_gpu_allocator>)
+  friend auto tag_invoke(void_ptr_cast_cpo<T>, void* ptr, allocator_tag_t<gpu_allocator>)
   noexcept
   -> T&
   {
@@ -120,7 +120,7 @@ struct host_held_gpu_allocator {
 #if defined(__NVCC__)
 template<typename T, typename U,
 				 typename... OverloadsT>
-constexpr auto tag_invoke(get_vtable_pointer_cpo<U,OverloadsT...>, allocator_tag_t<host_held_gpu_allocator<T>>)
+constexpr auto tag_invoke(get_vtable_pointer_cpo<U,OverloadsT...>, allocator_tag_t<gpu_allocator<T>>)
 noexcept
 -> tite::detail::vtable<OverloadsT...>*
 {
@@ -131,7 +131,7 @@ noexcept
 
 template<typename T, typename U,
 				 typename... OverloadsT>
-constexpr auto tag_invoke(get_vtable_cpo<U,OverloadsT...>, allocator_tag_t<host_held_gpu_allocator<T>>)
+constexpr auto tag_invoke(get_vtable_cpo<U,OverloadsT...>, allocator_tag_t<gpu_allocator<T>>)
 noexcept
 -> tite::detail::vtable<OverloadsT...>
 {

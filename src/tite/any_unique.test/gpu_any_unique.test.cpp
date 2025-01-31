@@ -1,6 +1,6 @@
 #include "tite.hpp"
 #include "get_cpo.hpp"
-#include "tite/host_held_gpu_allocator.hpp"
+#include "tite/gpu_allocator.hpp"
 
 #include "get_cpo.hpp"
 
@@ -24,12 +24,12 @@ int run_any_unique_gpu_test() {
 
   using tite::overload;
   using tite::any_unique;
-  using tite::host_held_gpu_allocator;
+  using tite::gpu_allocator;
   using tite::self;
 
   using erased_type = any_unique<overload<get_cpo, int(self const&, int)> >;
 
-  erased_type const au1 = {blarg{}, host_held_gpu_allocator<int>{/* std::allocator<blarg>{} */ }};
+  erased_type const au1 = {blarg{}, gpu_allocator<int>{/* std::allocator<blarg>{} */ }};
   erased_type* d_ptr;
 
   TITE_GPU_ASSERT( titeGPUMalloc(&d_ptr, sizeof(erased_type)) );
