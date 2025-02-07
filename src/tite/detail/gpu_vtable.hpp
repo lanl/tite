@@ -7,6 +7,7 @@ namespace detail {
 
 template<typename T, typename... OverloadsT>
 __constant__ static tite::detail::vtable<OverloadsT...> const gpu_vtable_for = tite::detail::vtable<OverloadsT...>::template construct<T>();
+
 template<typename T, typename... OverloadsT>
 __constant__ static tite::detail::vtable<OverloadsT...> const * const gpu_vtable_ptr = &gpu_vtable_for<T,OverloadsT...>;
 

@@ -13,8 +13,8 @@ struct blarg {
 };
 
 template<typename GettableT>
-__global__ void test_get(GettableT const* const au, int* const result) {
-  *result = get(*au, 1);
+__global__ void test_get(GettableT au, int* const result) {
+  *result = get(au, 1);
 }
 
 int run_any_unique_gpu_test() {
@@ -28,19 +28,19 @@ int run_any_unique_gpu_test() {
   using erased_type = any_unique<overload<get_cpo, int(self const&, int)> >;
 
   erased_type const au1 = {blarg{}, gpu_allocator<int>{/* std::allocator<blarg>{} */ }};
-  erased_type* d_ptr;
+  // erased_type* d_ptr;
 
-  TITE_GPU_ASSERT( titeGPUMalloc(&d_ptr, sizeof(erased_type)) );
-  TITE_GPU_ASSERT( titeGPUMemcpy(d_ptr, &au1, sizeof(erased_type), titeGPUMemcpyHostToDevice) );
+  // TITE_GPU_ASSERT( titeGPUMalloc(&d_ptr, sizeof(erased_type)) );
+  // TITE_GPU_ASSERT( titeGPUMemcpy(d_ptr, &au1, sizeof(erased_type), titeGPUMemcpyHostToDevice) );
 
   int* d_int;
   TITE_GPU_ASSERT( titeGPUMalloc(&d_int, sizeof(int)) );
 
-  test_get<<<1,1>>>(d_ptr, d_int);
+  test_get<<<1,1>>>(au1, d_int);
 
   TITE_GPU_ASSERT( titeGPUMemcpy(&hint, d_int, sizeof(int), titeGPUMemcpyDeviceToHost) );
 
-  TITE_GPU_ASSERT(titeGPUFree(d_ptr));
+  // TITE_GPU_ASSERT(titeGPUFree(d_ptr));
   TITE_GPU_ASSERT(titeGPUFree(d_int));
 
   return hint == 5;

@@ -9,15 +9,15 @@ namespace tite {
 
 namespace detail {
 
-struct copy {
+struct copy_cpo {
   using signature_t = void(self const&, void*&);
 
   template<typename T,
-           TITE_REQUIRES(is_tag_invocable<copy, T&&, void*&>::value)>
-  constexpr void operator()(T&& obj, void*& ptr) const
+           TITE_REQUIRES(is_tag_invocable<copy_cpo, T const&, void*&>::value)>
+  constexpr void operator()(T const& obj, void*& ptr) const
   noexcept
   {
-    tag_invoke_fn{}(copy{}, std::forward<T>(obj), ptr);
+    tag_invoke_fn{}(copy_cpo{}, obj, ptr);
   }
 };
 

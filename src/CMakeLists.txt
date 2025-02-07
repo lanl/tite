@@ -17,7 +17,7 @@ FILES
   ${prefix}/tite/gpu_allocator.hpp
 
   # detail
-  ${prefix}/tite/detail/copy.hpp
+  ${prefix}/tite/detail/copy_cpo.hpp
   ${prefix}/tite/detail/deallocate_cpo.hpp
   ${prefix}/tite/detail/gpu_functions.hpp
   ${prefix}/tite/detail/gpu_vtable.hpp

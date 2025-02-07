@@ -4,7 +4,7 @@
 #include "tite/detail/with_forwarding_tag_invoke.hpp"
 #include "tite/detail/with_type_erased_tag_invoke.hpp"
 #include "tite/detail/deallocate_cpo.hpp"
-#include "tite/detail/copy.hpp"
+#include "tite/detail/copy_cpo.hpp"
 #include "tite/vtable.hpp"
 #include "tite/type_traits.hpp"
 #include "tite/utility/in_place.hpp"
@@ -19,7 +19,7 @@ class any_unique
     : private detail::with_type_erased_tag_invoke<any_unique<OverloadsT...>, OverloadsT>... {
 private:
   using vtable_holder_t = detail::vtable_holder_t<OverloadsT...>;
-  using special_vtable_holder_t = detail::vtable_holder_t<detail::deallocate_cpo>;
+  using special_vtable_holder_t = detail::vtable_holder_t<detail::copy_cpo, detail::deallocate_cpo>;
 
 public:
   template<typename ConcreteT,
@@ -88,14 +88,16 @@ public:
                std::forward<ConcreteT>(concrete)}
   {}
 
-  /*
   any_unique(any_unique const& other)
-  : vtable_{ other.vtable_ }
-  {
-    auto copyFn = vtable_->template fn<detail::copy>();
-    copyFn(detail::copy{}, other.impl_, impl_);
+  : impl_{ other.impl_ }
+  , vtable_{ other.vtable_ }
+	, special_vtable_{ other.special_vtable_ }
+	{
+#if ! TITE_DEVICE_COMPILE()
+    auto copyFn = special_vtable_->template fn<detail::copy_cpo>();
+    copyFn(detail::copy_cpo{}, other.impl_, impl_);
+#endif
   }
-  */
 
   any_unique(any_unique&& other) noexcept
   : impl_(std::exchange(other.impl_, nullptr))
@@ -103,21 +105,26 @@ public:
   , special_vtable_(std::move(other.special_vtable_))
   {}
 
-  /*
   any_unique& operator=(any_unique const& other) {
     if( this == std::addressof(other) ) return *this;
 
+		vtable_ = other.vtable_;
+		special_vtable_ = other.special_vtable_;
+
+#if TITE_DEVICE_COMPILE()
+		impl_ = other.impl_;
+#else
     if (impl_ != nullptr) {
-      auto deallocateFn = vtable_->template fn<detail::deallocate>();
-      deallocateFn(detail::deallocate{}, impl_);
+      auto deallocateFn = special_vtable_->template fn<detail::deallocate_cpo>();
+      deallocateFn(detail::deallocate_cpo{}, impl_);
     }
 
-    vtable_ = other.vtable_;
-    auto copyFn = vtable_->template fn<detail::copy>();
-    copyFn(detail::copy{}, other.impl_, impl_);
+    auto copyFn = special_vtable_->template fn<detail::copy_cpo>();
+    copyFn(detail::copy_cpo{}, other.impl_, impl_);
+#endif
+
     return *this;
   }
-  */
 
   any_unique& operator=(any_unique&& other) {
     if( this == std::addressof(other) ) return *this;
@@ -165,31 +172,34 @@ public:
                            concrete_impl&& impl)
     noexcept
     {
-      allocator_type allocCopy = std::move(impl.alloc);
+      allocator_type alloc_copy = std::move(impl.alloc);
 
-      std::allocator_traits<allocator_type>::destroy(allocCopy, impl.ptr);
-      std::allocator_traits<allocator_type>::deallocate(allocCopy, impl.ptr, 1);
+      std::allocator_traits<allocator_type>::destroy(alloc_copy, impl.ptr);
+      std::allocator_traits<allocator_type>::deallocate(alloc_copy, impl.ptr, 1);
     }
 
-    /*
-    friend void tag_invoke(detail::copy,
+    friend void tag_invoke(detail::copy_cpo,
                            concrete_impl const& from,
                            void*& to)
     {
-      concrete_impl temp{from};
-      to = std::allocator_traits<allocator_type>::allocate(temp.alloc, 1);
+      allocator_type alloc_copy = from.alloc;
+      to = std::allocator_traits<allocator_type>::allocate(alloc_copy, 1);
       try {
-        std::allocator_traits<allocator_type>::construct(temp.alloc,
-                                                         static_cast<concrete_impl*>(to),
-                                                         std::move(temp));
+        std::allocator_traits<allocator_type>::construct(alloc_copy,
+                                                         static_cast<allocation_pointer_type>(to),
+                                                         concrete_impl{std::allocator_arg,
+                                                                       std::move(alloc_copy),
+                                                                       static_cast<allocation_pointer_type>(to),
+                                                                       from.value
+                                                                      }
+                                                        );
       } catch(...) {
-        std::allocator_traits<allocator_type>::deallocate(temp.alloc,
-                                                          static_cast<concrete_impl*>(to),
+        std::allocator_traits<allocator_type>::deallocate(alloc_copy,
+                                                          static_cast<allocation_pointer_type>(to),
                                                           1);
         throw;
       }
     }
-    */
 
     ConcreteT value;
     allocator_type alloc;
