@@ -1,4 +1,4 @@
-#include "tite.hpp"
+#include "tite/tite.hpp"
 #include "times_two.hpp"
 
 #include "catch2/catch_test_macros.hpp"

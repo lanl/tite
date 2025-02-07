@@ -1,7 +1,4 @@
-#include "tite.hpp"
-#include "tite/gpu_allocator.hpp"
-
-#include <cstdio>
+#include "tite/tite.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 

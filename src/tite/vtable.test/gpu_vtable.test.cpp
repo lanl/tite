@@ -1,10 +1,6 @@
-#include "tite.hpp"
-#include "tite/detail/gpu_functions.hpp"
-#include "tite/detail/gpu_vtable.hpp"
+#include "tite/tite.hpp"
 
 #include "times_two.hpp"
-
-#include <cstdio>
 
 __global__ void vtable_test_kernel(int* const val)
 {

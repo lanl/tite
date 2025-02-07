@@ -1,8 +1,7 @@
 #ifndef TITE_ANY_UNIQUE_TEST_GET_CPO_HPP
 #define TITE_ANY_UNIQUE_TEST_GET_CPO_HPP
 
-#include "tite.hpp"
-#include "tite/detail/gpu_functions.hpp"
+#include "tite/tite.hpp"
 
 #include <utility>
 

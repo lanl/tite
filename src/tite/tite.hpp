@@ -15,4 +15,8 @@
 
 #include "tite/any_unique.hpp"
 
+#if defined(__CUDACC__) || defined(__HIPCC__)
+#include "tite/gpu_allocator.hpp"
+#endif
+
 #endif

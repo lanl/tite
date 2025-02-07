@@ -1,20 +1,26 @@
 set(prefix $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>$<INSTALL_INTERFACE:include/tite>)
 target_sources(tite INTERFACE
-  ${prefix}/tite.hpp
+FILE_SET
+  tite_headers
+
+TYPE
+  HEADERS
+
+FILES
+  ${prefix}/tite/tite.hpp
 
   ${prefix}/tite/any_unique.hpp
-  $<$<BOOL:${TITE_ENABLE_GPU}>:${prefix}/tite/gpu_allocator.hpp>
   ${prefix}/tite/overload.hpp
   ${prefix}/tite/self.hpp
-  ${prefix}/tite/type_traits.hpp
-  ${prefix}/tite/utility.hpp
   ${prefix}/tite/vtable.hpp
+
+  ${prefix}/tite/gpu_allocator.hpp
 
   # detail
   ${prefix}/tite/detail/copy.hpp
   ${prefix}/tite/detail/deallocate_cpo.hpp
-  $<$<BOOL:${TITE_ENABLE_GPU}>:${prefix}/tite/detail/gpu_functions.hpp>
-  $<$<BOOL:${TITE_ENABLE_GPU}>:${prefix}/tite/detail/gpu_vtable.hpp>
+  ${prefix}/tite/detail/gpu_functions.hpp
+  ${prefix}/tite/detail/gpu_vtable.hpp
   ${prefix}/tite/detail/vtable.hpp
   ${prefix}/tite/detail/vtable_entry.hpp
   ${prefix}/tite/detail/vtable_holder.hpp
@@ -36,6 +42,8 @@ target_sources(tite INTERFACE
   ${prefix}/tite/type_traits/void_t.hpp
 
   # utlity
+  ${prefix}/tite/utility.hpp
+
   ${prefix}/tite/utility/in_place.hpp
 )
 

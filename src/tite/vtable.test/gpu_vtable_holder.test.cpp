@@ -1,10 +1,7 @@
-#include "tite.hpp"
-#include "tite/gpu_allocator.hpp"
+#include "tite/tite.hpp"
 
 #include "times_two.hpp"
 #include "times_three.hpp"
-
-#include <cstdio>
 
 namespace gpu_vtable_holder_test {
   using tite::overload;

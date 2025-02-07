@@ -8,7 +8,7 @@
 #include <memory>
 
 #ifndef TITE_DIRECT_VTABLE_SIZE_MAX
-#define TITE_DIRECT_VTABLE_SIZE_MAX 5
+#define TITE_DIRECT_VTABLE_SIZE_MAX 2
 #endif
 
 namespace tite {

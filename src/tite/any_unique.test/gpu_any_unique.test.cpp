@@ -1,6 +1,4 @@
-#include "tite.hpp"
-#include "get_cpo.hpp"
-#include "tite/gpu_allocator.hpp"
+#include "tite/tite.hpp"
 
 #include "get_cpo.hpp"
 

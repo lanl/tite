@@ -1,7 +1,7 @@
 #ifndef TITE_VTABLE_TEST_TIMES_TWO_HPP
 #define TITE_VTABLE_TEST_TIMES_TWO_HPP
 
-#include "tite.hpp"
+#include "tite/tite.hpp"
 
 struct times_two : tite::cpo_base<times_two> {
 private:

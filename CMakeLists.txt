@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14.6)
+cmake_minimum_required(VERSION 3.23)
 
 set(tite_testing_default TRUE)
 if( DEFINED PROJECT_NAME )
@@ -41,8 +41,6 @@ endif()
 
 add_library(tite INTERFACE)
 add_library(tite::tite ALIAS tite)
-target_compile_definitions(tite INTERFACE
-  $<$<BOOL:${TITE_ENABLE_GPU}>:TITE_ENABLE_GPU> )
 target_compile_options(tite INTERFACE
   $<$<CUDA_COMPILER_ID:NVIDIA>:$<$<COMPILE_LANGUAGE:CUDA>:-expt-relaxed-constexpr>>)
 
@@ -64,15 +62,14 @@ if( TITE_TESTING )
 
   target_link_libraries(tite_testing INTERFACE
     Catch2::Catch2
-    tite::tite
-    $<$<BOOL:${TITE_ENABLE_CUDA}>:${CUDA_LIBRARIES}>)
+    tite::tite)
+
+  target_compile_definitions(tite_testing INTERFACE
+    $<$<BOOL:${TITE_ENABLE_GPU}>:TITE_ENABLE_GPU> )
 
   target_compile_options(tite_testing INTERFACE
-    # $<$<CXX_COMPILER_ID:GNU>:-Wall;-Werror;-Wno-sign-compare>
-    # $<$<NOT:$<BOOL:${WIN32}>>:$<$<CXX_COMPILER_ID:Clang>:-Wall;-Werror>>
-    # $<$<BOOL:${WIN32}>:$<$<CXX_COMPILER_ID:Clang>:-Wall;-Wno-c++98-compat;-Wno-c++98-compat-pedantic>>
-    # $<$<CXX_COMPILER_ID:AppleClang>:-Wall;-Werror >
-    # $<$<AND:$<CXX_COMPILER_ID:Clang>,$<COMPILE_LANGUAGE:CUDA>>:-Xarch_device -g0>
+    $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wall;-Werror>
+    $<$<CXX_COMPILER_ID:Clang,AppleClang>:-Wall;-Werror>
   )
 
   add_executable(tite_test_main
@@ -87,12 +84,13 @@ if( TITE_TESTING )
   catch_discover_tests(tite_test_main)
 endif()
 
-install(DIRECTORY src/
-  DESTINATION include
-  FILES_MATCHING PATTERN *.hpp)
+# install(DIRECTORY src/
+#   DESTINATION include
+#   FILES_MATCHING PATTERN *.hpp)
 
 install(TARGETS tite EXPORT titeTargets
-  INCLUDES DESTINATION include)
+  INCLUDES DESTINATION include
+  FILE_SET tite_headers DESTINATION include)
 
 install(EXPORT titeTargets
   FILE titeTargets.cmake
