@@ -90,7 +90,7 @@ struct gpu_allocator {
   constexpr void deallocate(pointer ptr, IntT n) {
     for(IntT i=0; i<n; ++i) {
       T* h_ptr = nullptr;
-      TITE_GPU_ASSERT( titeGPUMemcpy(&(ptr[i].host_ptr), &h_ptr, sizeof(T*), titeGPUMemcpyHostToDevice) );
+      TITE_GPU_ASSERT( titeGPUMemcpy(&h_ptr, &(ptr[i].host_ptr), sizeof(T*), titeGPUMemcpyDeviceToHost) );
       std::allocator_traits<host_allocator_type>::deallocate(host_allocator_, h_ptr, 1);
 
       T* d_ptr = nullptr;

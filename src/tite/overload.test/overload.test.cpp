@@ -11,7 +11,14 @@ struct baz {};
 TEST_CASE("overload",
           "[overload]") {
 
+  using tite::self;
   using tite::overload;
+  using tite::detail::overload_references_const_self_v;
+
+  static_assert(overload_references_const_self_v<overload<foo, bar const&(self const&)>>, "");
+  static_assert(overload_references_const_self_v<overload<foo, bar const&(self const&&)>>, "");
+  static_assert(not overload_references_const_self_v<overload<foo, bar const&(self&)>>, "");
+  static_assert(not overload_references_const_self_v<overload<foo, bar const&(self&&)>>, "");
 
   SECTION("verify basic overload base and signature") {
     overload<foo, bar(baz)> ovld;
@@ -23,7 +30,6 @@ TEST_CASE("overload",
   }
 
   SECTION("verify overload base and signature including self") {
-    using tite::self;
     overload<foo, bar const&(self const&, baz* const)> ovld;
 
     CHECK( std::is_base_of<foo, decltype(ovld)>::value );

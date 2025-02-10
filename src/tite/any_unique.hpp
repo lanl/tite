@@ -5,6 +5,7 @@
 #include "tite/detail/with_type_erased_tag_invoke.hpp"
 #include "tite/detail/deallocate_cpo.hpp"
 #include "tite/detail/copy_cpo.hpp"
+#include "tite/detail/copy_base.hpp"
 #include "tite/vtable.hpp"
 #include "tite/type_traits.hpp"
 #include "tite/utility/in_place.hpp"
@@ -149,9 +150,11 @@ public:
 
 public:
   template <typename ConcreteT, typename AllocatorT>
-  struct concrete_impl final : private detail::with_forwarding_tag_invoke<
-                                          concrete_impl<ConcreteT, AllocatorT>,
-                                          OverloadsT>... {
+  struct concrete_impl final : detail::copy_base<concrete_impl<ConcreteT, AllocatorT>, OverloadsT...>,
+                               private detail::with_forwarding_tag_invoke<
+                                         concrete_impl<ConcreteT, AllocatorT>,
+                                         OverloadsT>... {
+    using copy_base = detail::copy_base<concrete_impl<ConcreteT, AllocatorT>, OverloadsT...>;
     using allocator_type = typename std::allocator_traits<AllocatorT>::template rebind_alloc<concrete_impl>;
     using allocation_pointer_type = typename std::allocator_traits<allocator_type>::pointer;
 
@@ -163,43 +166,11 @@ public:
                            ArgsT&&... args)
     noexcept( std::is_nothrow_move_constructible<allocator_type>::value
           and std::is_nothrow_constructible<ConcreteT, ArgsT&&...>::value)
-    : value{std::forward<ArgsT>(args)...}
+    : copy_base{}
+    , value{std::forward<ArgsT>(args)...}
     , alloc{std::move(alloc)}
     , ptr{ptr}
     {}
-
-    friend void tag_invoke(detail::deallocate_cpo,
-                           concrete_impl&& impl)
-    noexcept
-    {
-      allocator_type alloc_copy = std::move(impl.alloc);
-
-      std::allocator_traits<allocator_type>::destroy(alloc_copy, impl.ptr);
-      std::allocator_traits<allocator_type>::deallocate(alloc_copy, impl.ptr, 1);
-    }
-
-    friend void tag_invoke(detail::copy_cpo,
-                           concrete_impl const& from,
-                           void*& to)
-    {
-      allocator_type alloc_copy = from.alloc;
-      to = std::allocator_traits<allocator_type>::allocate(alloc_copy, 1);
-      try {
-        std::allocator_traits<allocator_type>::construct(alloc_copy,
-                                                         static_cast<allocation_pointer_type>(to),
-                                                         concrete_impl{std::allocator_arg,
-                                                                       std::move(alloc_copy),
-                                                                       static_cast<allocation_pointer_type>(to),
-                                                                       from.value
-                                                                      }
-                                                        );
-      } catch(...) {
-        std::allocator_traits<allocator_type>::deallocate(alloc_copy,
-                                                          static_cast<allocation_pointer_type>(to),
-                                                          1);
-        throw;
-      }
-    }
 
     ConcreteT value;
     allocator_type alloc;
