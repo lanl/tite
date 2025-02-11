@@ -9,9 +9,6 @@
 namespace tite {
 
 namespace tag_invoke_detail {
-  constexpr
-  void tag_invoke();
-
   struct tag_invoke_fn {
     template<typename CPO, typename... Args>
     constexpr auto operator()(CPO&& cpo, Args&&... args) const
