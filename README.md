@@ -93,7 +93,8 @@ Mutable access to the elements can then be obtained using
 ```
 or immutable access by
 ```
-  auto& v3 = get_cpo{}(const_cast<random_access_container const&>(c), 2); // v3 is a const reference to 3
+  auto const& const_c = c;
+  auto& v3 = get_cpo{}(const_c, 2); // v3 is a const reference to 3
 ```
 (Note, had `c` been marked `const` then then `const_cast` would not be needed).
 
