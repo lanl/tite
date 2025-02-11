@@ -84,10 +84,6 @@ if( TITE_TESTING )
   catch_discover_tests(tite_test_main)
 endif()
 
-# install(DIRECTORY src/
-#   DESTINATION include
-#   FILES_MATCHING PATTERN *.hpp)
-
 install(TARGETS tite EXPORT titeTargets
   INCLUDES DESTINATION include
   FILE_SET tite_headers DESTINATION include)
