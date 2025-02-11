@@ -96,7 +96,6 @@ or immutable access by
   auto const& const_c = c;
   auto& v3 = get_cpo{}(const_c, 2); // v3 is a const reference to 3
 ```
-(Note, had `c` been marked `const` then then `const_cast` would not be needed).
 
 The `any_unique` class can be told how to allocate the type erased object by providing an additional allocator argument, e.g.,
 ```cpp
