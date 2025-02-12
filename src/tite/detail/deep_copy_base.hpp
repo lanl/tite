@@ -8,6 +8,10 @@
 
 namespace tite {
 
+struct copy_deep_tag {};
+
+constexpr static auto copy_deep = copy_deep_tag{};
+
 namespace detail {
 
 template<typename CRTPDerivedT>

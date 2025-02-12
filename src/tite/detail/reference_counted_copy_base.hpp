@@ -9,6 +9,10 @@
 
 namespace tite {
 
+struct copy_reference_counted_tag {};
+
+constexpr static auto copy_reference_counted = copy_reference_counted_tag{};
+
 namespace detail {
 
 template<typename CRTPDerivedT>

@@ -12,10 +12,31 @@ namespace tite {
 
 namespace detail {
 
+struct copy_default_tag {};
+
+template<typename CopyTagT, typename CRTPDerivedT, typename... OverloadTs>
+struct copy_base;
+
+template<typename CopyTagT, typename CRTPDerivedT, typename... OverloadTs>
+using copy_base_t = typename copy_base<CopyTagT, CRTPDerivedT, OverloadTs...>::type;
+
 template<typename CRTPDerivedT, typename... OverloadTs>
-using copy_base = std::conditional_t<tite::all_of_v<overload_references_const_self, OverloadTs...>,
-                                     reference_counted_copy_base<CRTPDerivedT>,
-                                     deep_copy_base<CRTPDerivedT> >;
+struct copy_base<copy_deep_tag, CRTPDerivedT, OverloadTs...> {
+  using type = deep_copy_base<CRTPDerivedT>;
+};
+
+template<typename CRTPDerivedT, typename... OverloadTs>
+struct copy_base<copy_reference_counted_tag, CRTPDerivedT, OverloadTs...> {
+  using type = reference_counted_copy_base<CRTPDerivedT>;
+};
+
+template<typename CRTPDerivedT, typename... OverloadTs>
+struct copy_base<copy_default_tag, CRTPDerivedT, OverloadTs...> {
+  using type = std::conditional_t<tite::all_of_v<overload_references_const_self, OverloadTs...>,
+                                  reference_counted_copy_base<CRTPDerivedT>,
+                                  deep_copy_base<CRTPDerivedT> >;
+
+};
 
 } // namespace detail
 

@@ -25,19 +25,21 @@ private:
 public:
   template<typename ConcreteT,
            typename AllocatorT,
+           typename CopyTagT,
            typename... ArgsT,
            TITE_REQUIRES(std::is_constructible<ConcreteT, ArgsT&&...>::value),
            TITE_REQUIRES(is_type_erasable_v<ConcreteT, OverloadsT...>)>
   explicit any_unique(std::allocator_arg_t,
                       AllocatorT alloc,
+                      CopyTagT,
                       in_place_type_t<ConcreteT>,
                       ArgsT&&... args)
-  : vtable_{vtable_holder_t::template construct<concrete_impl<ConcreteT, AllocatorT>>(
-              allocator_tag_v<typename concrete_impl<ConcreteT, AllocatorT>::allocator_type>)}
-  , special_vtable_{special_vtable_holder_t::template construct<concrete_impl<ConcreteT, AllocatorT>>(
-              allocator_tag_v<std::allocator<concrete_impl<ConcreteT, AllocatorT>>>)}
+  : vtable_{vtable_holder_t::template construct<concrete_impl<ConcreteT, AllocatorT, CopyTagT>>(
+              allocator_tag_v<typename concrete_impl<ConcreteT, AllocatorT, CopyTagT>::allocator_type>)}
+  , special_vtable_{special_vtable_holder_t::template construct<concrete_impl<ConcreteT, AllocatorT, CopyTagT>>(
+              allocator_tag_v<std::allocator<concrete_impl<ConcreteT, AllocatorT, CopyTagT>>>)}
   {
-    using concrete_type = concrete_impl<ConcreteT, AllocatorT>;
+    using concrete_type = concrete_impl<ConcreteT, AllocatorT, CopyTagT>;
     using allocator_type = typename concrete_type::allocator_type;
     using allocator_traits = std::allocator_traits<allocator_type>;
     allocator_type typedAllocator{std::move(alloc)};
@@ -62,6 +64,23 @@ public:
   any_unique(ConcreteT&& concrete, AllocatorT alloc)
   : any_unique(std::allocator_arg_t{},
                std::move(alloc),
+               detail::copy_default_tag{},
+               in_place_type_t<remove_cvref_t<ConcreteT>>{},
+               std::forward<ConcreteT>(concrete))
+  {}
+
+  template<typename ConcreteT,
+           typename AllocatorT,
+           typename CopyTagT,
+           TITE_REQUIRES(std::is_constructible<remove_cvref_t<ConcreteT>, ConcreteT&&>::value),
+           TITE_REQUIRES(not std::is_same<std::allocator_arg_t, std::decay_t<ConcreteT>>::value ),
+           TITE_REQUIRES(not is_specialization_of<in_place_type_t, std::decay_t<ConcreteT>>::value),
+           TITE_REQUIRES(is_type_erasable_v<ConcreteT, OverloadsT...>)>
+  constexpr
+  any_unique(ConcreteT&& concrete, AllocatorT alloc, CopyTagT copy_tag)
+  : any_unique(std::allocator_arg_t{},
+               std::move(alloc),
+               copy_tag,
                in_place_type_t<remove_cvref_t<ConcreteT>>{},
                std::forward<ConcreteT>(concrete))
   {}
@@ -74,6 +93,7 @@ public:
   explicit any_unique(in_place_type_t<ConcreteT> tag, ArgsT&&... args)
   : any_unique(std::allocator_arg,
                std::allocator<unsigned char>{},
+               detail::copy_default_tag{},
                tag,
                std::forward<ArgsT>(args)...)
   {}
@@ -149,12 +169,12 @@ public:
   }
 
 public:
-  template <typename ConcreteT, typename AllocatorT>
-  struct concrete_impl final : detail::copy_base<concrete_impl<ConcreteT, AllocatorT>, OverloadsT...>,
+  template <typename ConcreteT, typename AllocatorT, typename CopyBaseTagT>
+  struct concrete_impl final : detail::copy_base_t<CopyBaseTagT, concrete_impl<ConcreteT, AllocatorT, CopyBaseTagT>, OverloadsT...>,
                                private detail::with_forwarding_tag_invoke<
-                                         concrete_impl<ConcreteT, AllocatorT>,
+                                         concrete_impl<ConcreteT, AllocatorT, CopyBaseTagT>,
                                          OverloadsT>... {
-    using copy_base = detail::copy_base<concrete_impl<ConcreteT, AllocatorT>, OverloadsT...>;
+    using copy_base = detail::copy_base_t<CopyBaseTagT, concrete_impl<ConcreteT, AllocatorT, CopyBaseTagT>, OverloadsT...>;
     using allocator_type = typename std::allocator_traits<AllocatorT>::template rebind_alloc<concrete_impl>;
     using allocation_pointer_type = typename std::allocator_traits<allocator_type>::pointer;
 
