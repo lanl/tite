@@ -110,3 +110,15 @@ Moreover, the type erasure can be placed in GPU memory utilizing the `tite::gpu_
 
 **IMPORTANT NOTE**: When type erasing to the GPU it is important to understand that the `gpu_allocator` only allocates the object to the GPU, but it is the clients responsibility to ensure that any contained data resides in GPU memory as required.
 
+## Copy semantics
+
+By default an `any_unique` type will use the following copy semantics:
+ - if the overloads guaruntee immutability of the type-erased type then a reference counted copy will be used
+ - if the overloads allow for mutability then a deep copy of the type-erased type will be used
+
+At construction of the any unique type, the client can override the default behavior by specifying the desired copy semantic, e.g.,
+```cpp
+  random_access_container c4 = {std::deque<int>{1,2,3,4,5}, std::allocator<unsigned char>, tite::copy_reference_counted};
+```
+The fact that `c4` allowed mutability through the `mutable_get_overload` would have used the deep copy semantic by default; but, by specifying `tite::copy_reference_counted` the copy is switched to the reference counted semantic;
+Similarly `tite::copy_deep` can be utilized to force the deep copy semantic if desired by the client.
