@@ -2,7 +2,6 @@
 #define TITE_SELF_HPP
 
 #include "tite/type_traits/requires.hpp"
-#include "tite/type_traits/inline_var.hpp"
 
 #include <type_traits>
 #include <utility>

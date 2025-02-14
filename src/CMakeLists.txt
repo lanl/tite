@@ -7,20 +7,26 @@ TYPE
   HEADERS
 
 FILES
-  ${prefix}/tite/tite.hpp
-
   ${prefix}/tite/any_unique.hpp
+  ${prefix}/tite/cpo_base.hpp
+  ${prefix}/tite/gpu_allocator.hpp
+  ${prefix}/tite/gpu_allocator_base.hpp
   ${prefix}/tite/overload.hpp
   ${prefix}/tite/self.hpp
+  ${prefix}/tite/tite.hpp
+  ${prefix}/tite/type_traits.hpp
+  ${prefix}/tite/utility.hpp
   ${prefix}/tite/vtable.hpp
 
-  ${prefix}/tite/gpu_allocator.hpp
-
   # detail
+  ${prefix}/tite/detail/copy_base.hpp
   ${prefix}/tite/detail/copy_cpo.hpp
   ${prefix}/tite/detail/deallocate_cpo.hpp
+  ${prefix}/tite/detail/deep_copy_base.hpp
   ${prefix}/tite/detail/gpu_functions.hpp
   ${prefix}/tite/detail/gpu_vtable.hpp
+  ${prefix}/tite/detail/reference_counted_copy_base.hpp
+  ${prefix}/tite/detail/void_ptr_cast.hpp
   ${prefix}/tite/detail/vtable.hpp
   ${prefix}/tite/detail/vtable_entry.hpp
   ${prefix}/tite/detail/vtable_holder.hpp
@@ -29,9 +35,8 @@ FILES
   ${prefix}/tite/detail/with_type_erased_tag_invoke.hpp
 
   # type_traits
-  ${prefix}/tite/type_traits.hpp
-
   ${prefix}/tite/type_traits/all_of.hpp
+  ${prefix}/tite/type_traits/allocator_tag.hpp
   ${prefix}/tite/type_traits/invocable.hpp
   ${prefix}/tite/type_traits/is_cpo_invocable.hpp
   ${prefix}/tite/type_traits/is_specialization_of.hpp
@@ -42,8 +47,6 @@ FILES
   ${prefix}/tite/type_traits/void_t.hpp
 
   # utlity
-  ${prefix}/tite/utility.hpp
-
   ${prefix}/tite/utility/in_place.hpp
 )
 
