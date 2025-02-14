@@ -78,11 +78,11 @@ if( TITE_TESTING )
   target_link_libraries(tite_test_main PRIVATE
     Catch2::Catch2 )
 
-  add_subdirectory(src)
-
   include(Catch)
   catch_discover_tests(tite_test_main)
 endif()
+
+add_subdirectory(src)
 
 install(TARGETS tite EXPORT titeTargets
   INCLUDES DESTINATION include
