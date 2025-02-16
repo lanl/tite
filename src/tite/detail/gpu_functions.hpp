@@ -47,4 +47,14 @@
 #define TITE_CONSTEXPR_STATIC constexpr static
 #endif
 
+#if defined(__CUDACC__) || defined(__HIPCC__)
+#define TITE_HOST_FUNCTION __host__
+#define TITE_DEVICE_FUNCTION __device__
+#define TITE_HOST_DEVICE_FUNCTION __host__ __device__
+#else
+#define TITE_HOST_FUNCTION
+#define TITE_DEVICE_FUNCTION
+#define TITE_HOST_DEVICE_FUNCTION
+#endif
+
 #endif

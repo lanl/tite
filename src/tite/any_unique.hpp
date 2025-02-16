@@ -3,6 +3,7 @@
 
 #include "tite/detail/with_forwarding_tag_invoke.hpp"
 #include "tite/detail/with_type_erased_tag_invoke.hpp"
+#include "tite/detail/gpu_functions.hpp"
 #include "tite/detail/deallocate_cpo.hpp"
 #include "tite/detail/copy_cpo.hpp"
 #include "tite/detail/copy_base.hpp"
@@ -109,6 +110,7 @@ public:
                std::forward<ConcreteT>(concrete)}
   {}
 
+  constexpr
   any_unique(any_unique const& other)
   : impl_{ other.impl_ }
   , vtable_{ other.vtable_ }
@@ -120,12 +122,14 @@ public:
 #endif
   }
 
+  constexpr
   any_unique(any_unique&& other) noexcept
   : impl_(std::exchange(other.impl_, nullptr))
   , vtable_(std::move(other.vtable_))
   , special_vtable_(std::move(other.special_vtable_))
   {}
 
+  constexpr
   any_unique& operator=(any_unique const& other) {
     if( this == std::addressof(other) ) return *this;
 
@@ -147,6 +151,7 @@ public:
     return *this;
   }
 
+  constexpr
   any_unique& operator=(any_unique&& other) {
     if( this == std::addressof(other) ) return *this;
 
@@ -161,6 +166,7 @@ public:
     return *this;
   }
 
+  TITE_HOST_DEVICE_FUNCTION
   ~any_unique() {
     if (impl_ != nullptr) {
       auto deallocateFn = special_vtable_->template fn<detail::deallocate_cpo>();
