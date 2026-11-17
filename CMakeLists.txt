@@ -42,7 +42,9 @@ endif()
 add_library(tite INTERFACE)
 add_library(tite::tite ALIAS tite)
 target_compile_options(tite INTERFACE
-  $<$<CUDA_COMPILER_ID:NVIDIA>:$<$<COMPILE_LANGUAGE:CUDA>:-expt-relaxed-constexpr>>)
+  $<$<CUDA_COMPILER_ID:NVIDIA>:$<$<COMPILE_LANGUAGE:CUDA>:-expt-relaxed-constexpr>>
+  $<$<CUDA_COMPILER_ID:Clang>:$<$<COMPILE_LANGUAGE:CUDA>:-Wno-unknown-cuda-version>>
+)
 
 target_compile_features(tite INTERFACE cxx_std_17)
 target_compile_definitions(tite INTERFACE
@@ -69,7 +71,9 @@ if( TITE_TESTING )
 
   target_compile_options(tite_testing INTERFACE
     $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wall;-Werror>
-    $<$<CXX_COMPILER_ID:Clang,AppleClang>:-Wall;-Werror>
+    $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wall;-Werror>
+    $<$<COMPILE_LANG_AND_ID:CUDA,Clang>:-Wall;-Werror>
+    $<$<COMPILE_LANG_AND_ID:CUDA,NVIDIA>:-Werror=all-warnings>
   )
 
   add_executable(tite_test_main
@@ -80,6 +84,10 @@ if( TITE_TESTING )
 
   include(Catch)
   catch_discover_tests(tite_test_main)
+
+  if(TITE_ENABLE_GPU)
+    add_subdirectory(rdc_test)
+  endif()
 endif()
 
 add_subdirectory(src)

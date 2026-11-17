@@ -26,9 +26,9 @@ protected:
 					 typename... OverloadsT>
 	friend constexpr auto tag_invoke(get_vtable_pointer_cpo<U,OverloadsT...>, allocator_tag_t<CRTPDerivedT>)
 	noexcept
-	-> tite::detail::vtable<OverloadsT...>*
+	-> detail::vtable<OverloadsT...>*
 	{
-		tite::detail::vtable<OverloadsT...>* ptr = nullptr;
+		detail::vtable<OverloadsT...>* ptr = nullptr;
 		TITE_GPU_ASSERT( titeGPUMemcpyFromSymbol(&ptr, detail::gpu_vtable_ptr<U,OverloadsT...>, sizeof(detail::gpu_vtable_ptr<U,OverloadsT...>)) );
 		return ptr;
 	}
@@ -37,9 +37,9 @@ protected:
 					 typename... OverloadsT>
 	friend constexpr auto tag_invoke(get_vtable_cpo<U,OverloadsT...>, allocator_tag_t<CRTPDerivedT>)
 	noexcept
-	-> tite::detail::vtable<OverloadsT...>
+	-> detail::vtable<OverloadsT...>
 	{
-		tite::detail::vtable<OverloadsT...> vtable = detail::vtable_for<U,OverloadsT...>;
+		detail::vtable<OverloadsT...> vtable = detail::vtable_for<U,OverloadsT...>;
 		TITE_GPU_ASSERT( titeGPUMemcpyFromSymbol(&vtable, detail::gpu_vtable_for<U,OverloadsT...>, sizeof(detail::gpu_vtable_for<U,OverloadsT...>)) );
 		return vtable;
 	}

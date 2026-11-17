@@ -47,7 +47,7 @@ While initially a bit obscure, the CPO works as follows:
 The TITE library provides a `cpo_base` CRTP class in an attempt to ease the "boiler plate" repetitiveness of defining the CPOs.
 Using the `cpo_base` class the above `get_cpo` could be written:
 ```cpp
-struct get_cpo : cpo_base<get_cpo> 
+struct get_cpo : cpo_base<get_cpo>
 private:
   template<typename ContainerT, typename IntT>
   constexpr
@@ -122,3 +122,12 @@ At construction of the any unique type, the client can override the default beha
 ```
 The fact that `c4` allowed mutability through the `mutable_get_overload` would have used the deep copy semantic by default; but, by specifying `tite::copy_reference_counted` the copy is switched to the reference counted semantic;
 Similarly `tite::copy_deep` can be utilized to force the deep copy semantic if desired by the client.
+
+# Build Considerations
+
+When compiling across multiple translation units for CUDA architectures, the TITE library will require relocatable device code so that the constructed vtables will be visible across the resulting object files.
+Using CMake, CUDA relocatable device code can be enabled on a target setting the `CUDA_SEPARABLE_COMPILATION` property to `ON`, e.g.,
+```cmake
+set_target_properties(mylib PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+```
+where `mylib` should be replaced with your CMake compilation target.

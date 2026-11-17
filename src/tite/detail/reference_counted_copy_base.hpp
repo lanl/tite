@@ -53,8 +53,7 @@ protected:
                          CRTPDerivedT&& impl)
   noexcept
   {
-    using base_type = typename CRTPDerivedT::reference_counted_copy_base;
-    auto count = --impl.base_type::count_;
+    auto count = --impl.CRTPDerivedT::reference_counted_copy_base::count_;
     if( ! count ) {
       using allocator_type = typename CRTPDerivedT::allocator_type;
 
@@ -69,9 +68,8 @@ protected:
                          CRTPDerivedT const& from,
                          void*& to)
   {
-    using base_type = typename CRTPDerivedT::reference_counted_copy_base;
     auto& derived_t = const_cast<CRTPDerivedT&>(from);
-    derived_t.base_type::count_++;
+    derived_t.CRTPDerivedT::reference_counted_copy_base::count_++;
     to = reinterpret_cast<void*>(derived_t.ptr);
   }
 };
